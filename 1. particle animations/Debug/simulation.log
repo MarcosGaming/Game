@@ -1,0 +1,3 @@
+﻿  main.cpp
+c:\users\40284094\desktop\1. particle animations\main.cpp(262): warning C4305: '*=': truncation from 'double' to 'float'
+  simulation.vcxproj -> C:\Users\40284094\Desktop\1. particle animations\Debug\simulation.exe
