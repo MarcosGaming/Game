@@ -271,10 +271,12 @@ int main()
 		particle1.setPos(glm::vec3(0.0f,2.5f,0.0f) + nextPosition);*/
 
 		// 3 - make particle oscillate above the ground plance
-		particle1.setPos(glm::vec3(0.0f,1.5f,0.0f) + glm::vec3(0.0f, glm::sin(currentFrame), 0.0f));
+		//particle1.setPos(glm::vec3(0.0f,1.5f,0.0f) + glm::vec3(0.0f, glm::sin(currentFrame), 0.0f));
 		
 		// 4 - particle animation from initial velocity and acceleration
-		
+		glm::vec3 u = glm::vec3(1.0f, 4.0f, 0.0f);
+		glm::vec3 a = glm::vec3(0.0f, -9.8f, 0.0f);
+		particle1.setPos(glm::vec3(0.0f,2.5f,0.0f) + (u*currentFrame + 0.5f*a*currentFrame*currentFrame)*2.0f );
 
 		// 5 - add collision with plane
 
