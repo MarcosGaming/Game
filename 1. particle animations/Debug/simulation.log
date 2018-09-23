@@ -1,3 +1,5 @@
 ﻿  main.cpp
-c:\users\40284094\desktop\physics_animation\1. particle animations\main.cpp(262): warning C4305: '*=': truncation from 'double' to 'float'
-  simulation.vcxproj -> C:\Users\40284094\Desktop\Physics_Animation\1. particle animations\Debug\simulation.exe
+c:\users\marcos\desktop\physics_animation\1. particle animations\main.cpp(249): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+c:\users\marcos\desktop\physics_animation\1. particle animations\main.cpp(250): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+c:\users\marcos\desktop\physics_animation\1. particle animations\main.cpp(290): warning C4305: '*=': truncation from 'double' to 'float'
+  simulation.vcxproj -> C:\Users\Marcos\Desktop\Physics_Animation\1. particle animations\Debug\simulation.exe

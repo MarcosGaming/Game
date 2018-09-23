@@ -6,6 +6,7 @@
 // Std. Includes
 #include <string>
 #include <time.h>
+#include<array>
 
 // GLEW
 #define GLEW_STATIC
@@ -202,7 +203,10 @@ void draw(const Mesh &mesh)
 	glBindVertexArray(0);
 }
 
-
+// Collection of particles
+std::array<Mesh, 50> collectionP;
+// Collection of velocities
+std::array<glm::vec3,50> collectionU;
 
 // main function
 int main()
@@ -227,20 +231,44 @@ int main()
 	/*
 	CREATE THE PARTICLE(S) YOU NEED TO COMPLETE THE TASKS HERE
 	*/
+	/*for (int i = 0; i < 50; i++)
+	{
+		// create particle
+		Mesh particle = Mesh::Mesh();
+		//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
+		particle.translate(glm::vec3(0.0f, 2.5f, 0.0f));
+		particle.scale(glm::vec3(.1f, .1f, .1f));
+		particle.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
+		// allocate shader
+		particle.setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
+		// insert particle into array
+		collectionP[i] = particle;
+	}*/
+	for (int i = 0; i < 50; i++)
+	{
+		float x = rand() % 10 - 10;
+		float z = rand() % 10 - 10;
+		glm::vec3 velocity = glm::vec3(x, 4.0f, z);
+		collectionU[i] = velocity;
+	}
 	
 
 
 	GLfloat firstFrame = (GLfloat) glfwGetTime();
 	float acc = 1.1f;
 	glm::mat4 particle1Translate = particle1.getTranslate();
-	glm::vec3 particle1Position = glm::vec3(particle1Translate[0][3], particle1Translate[1][3], particle1Translate[2][3]);
+	glm::vec3 particleInitialPosition = glm::vec3(particle1Translate[3][0], particle1Translate[3][1], particle1Translate[3][2]);
+	glm::vec3 u = glm::vec3(1.0f, 4.0f, 0.0f);
+	glm::vec3 a = glm::vec3(0.0f, -9.8f, 0.0f);
+	//GLfloat initial
+	bool top = false;
 	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Set frame time
 		GLfloat currentFrame = (GLfloat)  glfwGetTime() - firstFrame;
 		// the animation can be sped up or slowed down by multiplying currentFrame by a factor.
-		currentFrame *= 1.5f;
+		currentFrame *= 1.0f;
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
@@ -274,15 +302,36 @@ int main()
 		//particle1.setPos(glm::vec3(0.0f,1.5f,0.0f) + glm::vec3(0.0f, glm::sin(currentFrame), 0.0f));
 		
 		// 4 - particle animation from initial velocity and acceleration
-		glm::vec3 u = glm::vec3(1.0f, 4.0f, 0.0f);
-		glm::vec3 a = glm::vec3(0.0f, -9.8f, 0.0f);
-		particle1.setPos(glm::vec3(0.0f,2.5f,0.0f) + (u*currentFrame + 0.5f*a*currentFrame*currentFrame)*2.0f );
+		//particle1.setPos(glm::vec3(0.0f,2.5f,0.0f) + (u*currentFrame + 0.5f*a*currentFrame*currentFrame));
 
 		// 5 - add collision with plane
-
+		/*if (particle1.getTranslate()[3][1] >= plane.getTranslate()[3][1])
+		{
+			particle1.setPos(particleInitialPosition + (u*currentFrame + 0.5f*a*currentFrame*currentFrame));
+		}
+		else
+		{
+			particleInitialPosition += (u * currentFrame + 0.5f*a*currentFrame*currentFrame);
+			particleInitialPosition.y = plane.getTranslate()[3][1];
+			firstFrame = (GLfloat) glfwGetTime();
+			particle1.setPos(particleInitialPosition);
+		}*/
 
 		// 6 - Same as above but for a collection of particles
-		
+		/*for (int i = 0; i < 50; i++)
+		{
+			if (collectionP[i].getTranslate()[3][1] >= plane.getTranslate()[3][1])
+			{
+				collectionP[i].setPos(particleInitialPosition + (collectionU[i]*currentFrame + 0.5f*a*currentFrame*currentFrame));
+			}
+			else
+			{
+				particleInitialPosition += (collectionU[i] * currentFrame + 0.5f*a*currentFrame*currentFrame);
+				particleInitialPosition.y = plane.getTranslate()[3][1];
+				firstFrame = (GLfloat)glfwGetTime();
+				collectionP[i].setPos(particleInitialPosition);
+			}
+		}*/
 
 		/*
 		**	RENDER 
@@ -296,6 +345,10 @@ int main()
 		draw(plane);
 		// draw particles
 		draw(particle1);
+		/*for (int i = 0; i < 50; i++)
+		{
+			draw(collectionP[i]);
+		}*/
 		
 				
 
