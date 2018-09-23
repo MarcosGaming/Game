@@ -6,7 +6,7 @@
 // Std. Includes
 #include <string>
 #include <time.h>
-#include<array>
+#include <array>
 
 // GLEW
 #define GLEW_STATIC
@@ -204,9 +204,12 @@ void draw(const Mesh &mesh)
 }
 
 // Collection of particles
-std::array<Mesh, 50> collectionP;
+std::vector<Mesh> collectionP;
+int maxParticles = 50;
+// Collection of particle positions
+std::array<glm::vec3, 50> initialPositions;
 // Collection of velocities
-std::array<glm::vec3,50> collectionU;
+std::array<glm::vec3, 50> collectionU;
 
 // main function
 int main()
@@ -231,7 +234,9 @@ int main()
 	/*
 	CREATE THE PARTICLE(S) YOU NEED TO COMPLETE THE TASKS HERE
 	*/
-	/*for (int i = 0; i < 50; i++)
+	glm::mat4 particle1Translate = particle1.getTranslate();
+	glm::vec3 particleInitialPosition = glm::vec3(particle1Translate[3][0], particle1Translate[3][1], particle1Translate[3][2]);
+	for (int i = 0; i < maxParticles; i++)
 	{
 		// create particle
 		Mesh particle = Mesh::Mesh();
@@ -242,22 +247,24 @@ int main()
 		// allocate shader
 		particle.setShader(Shader("resources/shaders/core.vert", "resources/shaders/core_blue.frag"));
 		// insert particle into array
-		collectionP[i] = particle;
-	}*/
-	for (int i = 0; i < 50; i++)
+		collectionP.push_back(particle);
+	}
+	for (int i = 0; i < maxParticles; i++)
 	{
-		float x = rand() % 10 - 10;
-		float z = rand() % 10 - 10;
+		float x = (((float)rand()) / RAND_MAX * 100.0f - 50.0f)/40.0f;
+		float z = (((float)rand()) / RAND_MAX * 100.0f - 50.0f)/40.0f;
 		glm::vec3 velocity = glm::vec3(x, 4.0f, z);
 		collectionU[i] = velocity;
+	}
+	for (int i = 0; i < maxParticles; i++)
+	{
+		initialPositions[i] = particleInitialPosition;
 	}
 	
 
 
 	GLfloat firstFrame = (GLfloat) glfwGetTime();
 	float acc = 1.1f;
-	glm::mat4 particle1Translate = particle1.getTranslate();
-	glm::vec3 particleInitialPosition = glm::vec3(particle1Translate[3][0], particle1Translate[3][1], particle1Translate[3][2]);
 	glm::vec3 u = glm::vec3(1.0f, 4.0f, 0.0f);
 	glm::vec3 a = glm::vec3(0.0f, -9.8f, 0.0f);
 	//GLfloat initial
@@ -318,20 +325,20 @@ int main()
 		}*/
 
 		// 6 - Same as above but for a collection of particles
-		/*for (int i = 0; i < 50; i++)
+		for (int i = 0; i < maxParticles; i++)
 		{
-			if (collectionP[i].getTranslate()[3][1] >= plane.getTranslate()[3][1])
+			if (collectionP.at(i).getTranslate()[3][1] >= plane.getTranslate()[3][1])
 			{
-				collectionP[i].setPos(particleInitialPosition + (collectionU[i]*currentFrame + 0.5f*a*currentFrame*currentFrame));
+				collectionP.at(i).setPos(initialPositions[i] + (collectionU[i]*currentFrame + 0.5f*a*currentFrame*currentFrame));
 			}
 			else
 			{
-				particleInitialPosition += (collectionU[i] * currentFrame + 0.5f*a*currentFrame*currentFrame);
-				particleInitialPosition.y = plane.getTranslate()[3][1];
+				initialPositions[i] += (collectionU[i] * currentFrame + 0.5f*a*currentFrame*currentFrame);
+				initialPositions[i].y = plane.getTranslate()[3][1];
 				firstFrame = (GLfloat)glfwGetTime();
-				collectionP[i].setPos(particleInitialPosition);
+				collectionP.at(i).setPos(initialPositions[i]);
 			}
-		}*/
+		}
 
 		/*
 		**	RENDER 
@@ -344,11 +351,11 @@ int main()
 		// draw groud plane
 		draw(plane);
 		// draw particles
-		draw(particle1);
-		/*for (int i = 0; i < 50; i++)
+		//draw(particle1);
+		for (int i = 0; i < maxParticles; i++)
 		{
-			draw(collectionP[i]);
-		}*/
+			draw(collectionP.at(i));
+		}
 		
 				
 
