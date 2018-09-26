@@ -1,0 +1,32 @@
+﻿  main.cpp
+c:\users\marcos\desktop\physics_practicals\1. particle animations\main.cpp(297): warning C4305: '*=': truncation from 'double' to 'float'
+  Mesh.cpp
+c:\users\marcos\desktop\physics_practicals\1. particle animations\mesh.cpp(133): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdio.h(1197): note: see declaration of 'fscanf'
+  OBJLoader.cpp
+c:\users\marcos\desktop\physics_practicals\1. particle animations\objloader.cpp(378): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+  LINK : C:\Users\Marcos\Desktop\Physics_Practicals\1. particle animations\Debug\simulation.exe not found or not built by the last incremental link; performing full link
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+Mesh.obj : warning LNK4049: locally defined symbol ___glewBindBuffer imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewBufferData imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewGenBuffers imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewAttachShader imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewCompileShader imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewCreateProgram imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewCreateShader imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewDeleteShader imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewEnableVertexAttribArray imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewGetProgramInfoLog imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewGetProgramiv imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewGetShaderInfoLog imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewGetShaderiv imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewLinkProgram imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewShaderSource imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewUseProgram imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewVertexAttribPointer imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewBindVertexArray imported
+Mesh.obj : warning LNK4049: locally defined symbol ___glewGenVertexArrays imported
+glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Users\Marcos\Desktop\Physics_Practicals\1. particle animations\Debug\vc120.pdb'; linking object as if no debug info
+  simulation.vcxproj -> C:\Users\Marcos\Desktop\Physics_Practicals\1. particle animations\Debug\simulation.exe
