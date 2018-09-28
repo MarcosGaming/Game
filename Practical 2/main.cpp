@@ -62,6 +62,14 @@ int main()
 
 	// time
 	GLfloat firstFrame = (GLfloat) glfwGetTime();
+
+	float mass = 2.0f;
+	glm::vec3 v = glm::vec3(7.0f,10.0f,5.0f);
+	glm::vec3 a = glm::vec3(0.0f);
+	glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
+	glm::vec3 cubeCorner = glm::vec3(2.5f, 5.0f, 2.5f);
+	glm::vec3 cubeDimensions = glm::vec3(5.0f);
+	float energyDrain = 1.05f;
 	
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
@@ -83,7 +91,51 @@ int main()
 		/*
 		**	SIMULATION
 		*/
-		
+
+		// TASK 1
+		// Add forces
+		/*glm::vec3 forceg = mass * glm::vec3(0.0f, -9.8f, 0.0f);
+		glm::vec3 totalForce = forceg;
+		// Compute acceleration
+		a = totalForce / mass;
+		// Integrate to calculate new velocity and position
+		v = v + a * deltaTime;
+		particle1.translate(v * deltaTime);*/
+
+		//TASK 2
+		// Add forces
+		glm::vec3 forceg = mass * g;
+		glm::vec3 totalForce = forceg;
+		// Compute acceleration
+		a = totalForce / mass;
+		// Integrate to calculate new velocity and position
+		v = v + a * deltaTime;
+		particle1.translate(v * deltaTime);
+		for (int i = 0; i < 3; i++)
+		{
+			if (particle1.getPos()[i] >= cubeCorner[i])
+			{
+				glm::vec3 particlePosition = glm::vec3(particle1.getPos().x, particle1.getPos().y, particle1.getPos().z);
+				particlePosition[i] = cubeCorner[i];
+				particle1.setPos(particlePosition);
+				v[i] = -v[i]/energyDrain;
+			}
+			else if (particle1.getPos()[i] <= (cubeCorner[i] - cubeDimensions[i]))
+			{
+				glm::vec3 particlePosition = glm::vec3(particle1.getPos().x, particle1.getPos().y, particle1.getPos().z);
+				particlePosition[i] = cubeCorner[i] - cubeDimensions[i];
+				particle1.setPos(particlePosition);
+				v[i] = -v[i]/energyDrain;
+			}
+
+		}
+
+		//TASK 3
+		// Add forces
+
+		// Compute acceleration
+
+		// Integrate to calculate velocity and position
 
 
 		/*
@@ -97,8 +149,8 @@ int main()
 		app.draw(particle1);	
 
 		// draw demo objects
-		app.draw(cube);
-		app.draw(sphere);
+		//app.draw(cube);
+		//app.draw(sphere);
 
 		app.display();
 	}
