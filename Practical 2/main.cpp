@@ -64,12 +64,15 @@ int main()
 	GLfloat firstFrame = (GLfloat) glfwGetTime();
 
 	float mass = 2.0f;
-	glm::vec3 v = glm::vec3(7.0f,10.0f,5.0f);
+	glm::vec3 v = glm::vec3(10.0f, 0.0f, 0.0f);
 	glm::vec3 a = glm::vec3(0.0f);
 	glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
 	glm::vec3 cubeCorner = glm::vec3(2.5f, 5.0f, 2.5f);
 	glm::vec3 cubeDimensions = glm::vec3(5.0f);
 	float energyDrain = 1.05f;
+	float airDensity = 1.225f;
+	float cubeCd = 1.05f;
+	glm::vec3 windV = glm::vec3(50.0f, 0.0f, 0.0f);
 	
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
@@ -104,7 +107,7 @@ int main()
 
 		//TASK 2
 		// Add forces
-		glm::vec3 forceg = mass * g;
+		/*glm::vec3 forceg = mass * g;
 		glm::vec3 totalForce = forceg;
 		// Compute acceleration
 		a = totalForce / mass;
@@ -118,24 +121,28 @@ int main()
 				glm::vec3 particlePosition = glm::vec3(particle1.getPos().x, particle1.getPos().y, particle1.getPos().z);
 				particlePosition[i] = cubeCorner[i];
 				particle1.setPos(particlePosition);
-				v[i] = -v[i]/energyDrain;
+				v[i] = -v[i] / energyDrain;
 			}
 			else if (particle1.getPos()[i] <= (cubeCorner[i] - cubeDimensions[i]))
 			{
 				glm::vec3 particlePosition = glm::vec3(particle1.getPos().x, particle1.getPos().y, particle1.getPos().z);
 				particlePosition[i] = cubeCorner[i] - cubeDimensions[i];
 				particle1.setPos(particlePosition);
-				v[i] = -v[i]/energyDrain;
+				v[i] = -v[i] / energyDrain;
 			}
 
-		}
+		}*/
 
 		//TASK 3
 		// Add forces
-
+		glm::vec3 fgravity = mass * g;
+		glm::vec3 faero = 0.5f * airDensity * windV * windV * cubeCd * (0.1*0.1) * -1.0f;
+		glm::vec3 totalForce = fgravity + faero;
 		// Compute acceleration
-
+		a = totalForce / mass;
 		// Integrate to calculate velocity and position
+		v = v + a * deltaTime;
+		particle1.translate(v * deltaTime);
 
 
 		/*
