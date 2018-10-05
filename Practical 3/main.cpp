@@ -27,8 +27,10 @@
 
 
 // time
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
+GLfloat t = 0.0f;
+const GLfloat deltaTime = 0.01f;
+GLfloat currentTime = (GLfloat)glfwGetTime();
+GLfloat accumulator = 0.0f;
 
 // main function
 int main()
@@ -37,21 +39,18 @@ int main()
 	Application app = Application::Application();
 	app.initRender();
 	Application::camera.setCameraPosition(glm::vec3(0.0f, 5.0f, 20.0f));
-			
+
 	// create ground plane
 	Mesh plane = Mesh::Mesh(Mesh::QUAD);
 	// scale it up x5
 	plane.scale(glm::vec3(5.0f, 5.0f, 5.0f));
 	Shader lambert = Shader("resources/shaders/physics.vert", "resources/shaders/physics.frag");
 	plane.setShader(lambert);
-	
-	// time
-	GLfloat firstFrame = (GLfloat) glfwGetTime();
 
 	// Gravity constant
 	glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
 
-	// PARTICLE BOUNCING INSIDE CUBE VARIABLES
+	// TASK 2 PARTICLE BOUNCING INSIDE CUBE VARIABLES
 	/*Particle particleInCube = Particle::Particle();
 	particleInCube.translate(glm::vec3(0.0f, 2.5f, 0.0f));
 	particleInCube.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
@@ -61,16 +60,51 @@ int main()
 	glm::vec3 cubeCorner = glm::vec3(2.5f, 5.0f, 2.5f);
 	glm::vec3 cubeDimensions = glm::vec3(5.0f);
 	float energyDrain = 1.05f;*/
-	
+
+	// TASK 3 INTEGRATION METHODS VARIABLES
+	// Static particle
+	/*Particle staticParticle = Particle::Particle();
+	staticParticle.translate(glm::vec3(-2.0f, 2.5f, 0.0f));
+	staticParticle.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
+	//Moving particles
+	std::vector<Particle> movingParticles;
+	for (int i = 0; i < 2; i++)
+	{
+		Particle movingParticle = Particle::Particle();
+		movingParticle.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
+		movingParticle.setAcc(glm::vec3(0.0f));
+		movingParticle.setMass(2.0f);
+		movingParticle.setVel(glm::vec3(0.0f, 5.0f, 0.0f));
+		movingParticles.push_back(movingParticle);
+	}
+	movingParticles[0].translate(glm::vec3(0.0f, 2.5f, 0.0f));
+	movingParticles[1].translate(glm::vec3(2.0f, 2.5f, 0.0f));*/
+
+	// TASK 4 BLOW DRYER VARIABLES
+	// Cube
+	Mesh cube = Mesh::Mesh(Mesh::CUBE);
+	cube.scale(glm::vec3(2.5f, 2.5f, 2.5f));
+	cube.translate(glm::vec3(0.0f, 2.5f, 0.0f));
+	cube.setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_transparent.frag"));
+	// Particles 
+	Particle particleInCube = Particle::Particle();
+	particleInCube.translate(glm::vec3(0.0f, 2.5f, 0.0f));
+	particleInCube.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
+	particleInCube.setMass(2.0f);
+	particleInCube.setAcc(glm::vec3(0.0f));
+	particleInCube.setVel(glm::vec3(10.0f, 8.0f, 5.0f));
+	glm::vec3 cubeCorner = glm::vec3(2.5f, 5.0f, 2.5f);
+	glm::vec3 cubeDimensions = glm::vec3(5.0f);
+	float energyDrain = 1.05f;
+
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
 	{
 		// Set frame time
-		GLfloat currentFrame = (GLfloat)  glfwGetTime() - firstFrame;
-		// the animation can be sped up or slowed down by multiplying currentFrame by a factor.
-		currentFrame *= 1.5f;
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		GLfloat newTime = (GLfloat)glfwGetTime();
+		GLfloat frameTime = newTime - currentTime;
+		currentTime = newTime;
+		accumulator += frameTime;
 
 		/*
 		**	INTERACTION
@@ -82,45 +116,116 @@ int main()
 		/*
 		**	SIMULATION
 		*/
-		
-		// PARTICLE BOUNCING INSIDE CUBE
-		// Add forces
-		/*glm::vec3 forceg = particleInCube.getMass() * g;
-		glm::vec3 totalForce = forceg;
-		// Compute acceleration
-		particleInCube.setAcc(totalForce / particleInCube.getMass());
-		// Integrate to calculate new velocity and position
-		particleInCube.setVel( particleInCube.getVel() + particleInCube.getAcc() * deltaTime);
-		particleInCube.translate(particleInCube.getVel() * deltaTime);
-		for (int i = 0; i < 3; i++)
+		while (accumulator >= deltaTime)
 		{
-			if (particleInCube.getPos()[i] >= cubeCorner[i])
+			// TASK 2 PARTICLE BOUNCING INSIDE CUBE
+			// Add forces
+			/*glm::vec3 forceg = particleInCube.getMass() * g;
+			glm::vec3 totalForce = forceg;
+			// Compute acceleration
+			particleInCube.setAcc(totalForce / particleInCube.getMass());
+			// Integrate to calculate new velocity and position
+			particleInCube.setVel(particleInCube.getVel() + particleInCube.getAcc() * deltaTime);
+			particleInCube.translate(particleInCube.getVel() * deltaTime);
+			for (int i = 0; i < 3; i++)
 			{
-				glm::vec3 particlePosition = glm::vec3(particleInCube.getPos().x, particleInCube.getPos().y, particleInCube.getPos().z);
-				particlePosition[i] = cubeCorner[i];
-				particleInCube.setPos(particlePosition);
-				particleInCube.setVel(i, -particleInCube.getVel()[i] / energyDrain);
-			}
-			else if (particleInCube.getPos()[i] <= (cubeCorner[i] - cubeDimensions[i]))
+				if (particleInCube.getPos()[i] >= cubeCorner[i])
+				{
+					glm::vec3 particlePosition = glm::vec3(particleInCube.getPos().x, particleInCube.getPos().y, particleInCube.getPos().z);
+					particlePosition[i] = cubeCorner[i];
+					particleInCube.setPos(particlePosition);
+					particleInCube.setVel(i, -particleInCube.getVel()[i] / energyDrain);
+				}
+				else if (particleInCube.getPos()[i] <= (cubeCorner[i] - cubeDimensions[i]))
+				{
+					glm::vec3 particlePosition = glm::vec3(particleInCube.getPos().x, particleInCube.getPos().y, particleInCube.getPos().z);
+					particlePosition[i] = cubeCorner[i] - cubeDimensions[i];
+					particleInCube.setPos(particlePosition);
+					particleInCube.setVel(i, -particleInCube.getVel()[i] / energyDrain);
+				}
+			}*/
+
+			// TASK 3 INTEGRATION METHODS
+			/*for (int i = 0; i < 2; i++)
 			{
-				glm::vec3 particlePosition = glm::vec3(particleInCube.getPos().x, particleInCube.getPos().y, particleInCube.getPos().z);
-				particlePosition[i] = cubeCorner[i] - cubeDimensions[i];
-				particleInCube.setPos(particlePosition);
-				particleInCube.setVel(i, -particleInCube.getVel()[i] / energyDrain);
+				// Add forces
+				glm::vec3 forceg = movingParticles[i].getMass() * g;
+				// Compute acceleration
+				movingParticles[i].setAcc(forceg / movingParticles[i].getMass());
+				// Calculate new velocity and position (Semi-Implicit Euler Integration)
+				if (i == 0)
+				{
+					movingParticles[i].setVel(movingParticles[i].getVel() + deltaTime * movingParticles[i].getAcc());
+					movingParticles[i].translate(deltaTime * movingParticles[i].getVel());
+				}
+				// Calculate new velocity and position (Forward Euler Integration)
+				else
+				{
+					glm::vec3 previousVel = movingParticles[i].getVel();
+					movingParticles[i].setVel(movingParticles[i].getVel() + deltaTime * movingParticles[i].getAcc());
+					movingParticles[i].translate(deltaTime * previousVel);
+				}
+				// Collision
+				if (movingParticles[i].getPos().y < plane.getPos().y)
+				{
+					movingParticles[i].setPos(1, plane.getPos().y);
+					movingParticles[i].setVel(1, -movingParticles[i].getVel().y);
+				}
+			}*/
+
+			// TASK 4 BLOW DRYER
+			// Add forces
+			glm::vec3 forceg = particleInCube.getMass() * g;
+			glm::vec3 totalForce = forceg;
+			// Compute acceleration
+			particleInCube.setAcc(totalForce / particleInCube.getMass());
+			// Integrate to calculate new velocity and position
+			particleInCube.setVel(particleInCube.getVel() + particleInCube.getAcc() * deltaTime);
+			particleInCube.translate(particleInCube.getVel() * deltaTime);
+			for (int i = 0; i < 3; i++)
+			{
+				if (particleInCube.getPos()[i] >= cubeCorner[i])
+				{
+					glm::vec3 particlePosition = glm::vec3(particleInCube.getPos().x, particleInCube.getPos().y, particleInCube.getPos().z);
+					particlePosition[i] = cubeCorner[i];
+					particleInCube.setPos(particlePosition);
+					particleInCube.setVel(i, -particleInCube.getVel()[i] / energyDrain);
+				}
+				else if (particleInCube.getPos()[i] <= (cubeCorner[i] - cubeDimensions[i]))
+				{
+					glm::vec3 particlePosition = glm::vec3(particleInCube.getPos().x, particleInCube.getPos().y, particleInCube.getPos().z);
+					particlePosition[i] = cubeCorner[i] - cubeDimensions[i];
+					particleInCube.setPos(particlePosition);
+					particleInCube.setVel(i, -particleInCube.getVel()[i] / energyDrain);
+				}
 			}
-		}*/
+
+			accumulator -= deltaTime;
+			t += deltaTime;
+		}
 
 
 		/*
-		**	RENDER 
-		*/		
+		**	RENDER
+		*/
 		// clear buffer
 		app.clear();
 		// draw groud plane
 		app.draw(plane);
 
-		// PARTICLE BOUNCING INSIDE CUBE
+		// TASK 2 PARTICLE BOUNCING INSIDE CUBE
 		//app.draw(particleInCube.getMesh());
+
+		// TASK 3 INTEGRATION METHODS
+		/*app.draw(staticParticle.getMesh());
+		for (int i = 0; i < 2; i++)
+		{
+			app.draw(movingParticles[i].getMesh());
+		}*/
+
+		// TASK 4 BLOW DRYER
+		app.draw(particleInCube.getMesh());
+		app.draw(cube);
 
 		app.display();
 	}

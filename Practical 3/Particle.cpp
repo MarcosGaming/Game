@@ -20,4 +20,4 @@ Particle::Particle()
 	setCor(1.0f);
 }
 // Destructor
-Particle ::~Particle(){}
+Particle ::~Particle() {}
