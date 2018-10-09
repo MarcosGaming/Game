@@ -86,6 +86,8 @@ int main()
 	cube.scale(glm::vec3(2.5f, 2.5f, 2.5f));
 	cube.translate(glm::vec3(0.0f, 2.5f, 0.0f));
 	cube.setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_transparent.frag"));
+	glm::vec3 cubeCorner = glm::vec3(2.5f, 5.0f, 2.5f);
+	glm::vec3 cubeDimensions = glm::vec3(5.0f);
 	// Particles 
 	Particle particleInCube = Particle::Particle();
 	particleInCube.translate(glm::vec3(0.0f, 2.5f, 0.0f));
@@ -93,9 +95,16 @@ int main()
 	particleInCube.setMass(2.0f);
 	particleInCube.setAcc(glm::vec3(0.0f));
 	particleInCube.setVel(glm::vec3(10.0f, 8.0f, 5.0f));
-	glm::vec3 cubeCorner = glm::vec3(2.5f, 5.0f, 2.5f);
-	glm::vec3 cubeDimensions = glm::vec3(5.0f);
 	float energyDrain = 1.05f;
+	// Blow Dryer
+	glm::vec3 dryerBase = glm::vec3(0.0f);
+	float dryerUpperRadius = 1.0f;
+	float dryerLowerRadius = 0.5f;
+	float dryerHeight = 2.0f;
+	float dryerSections = 20.0f;
+	float dryerRadiusIncrease = (dryerUpperRadius - dryerLowerRadius) / dryerSections;
+	float faero = 0.5 * 1.255 * (50.0 * 50.0) * 1.05 * 0.01;
+	float energyDecrease = 2.0f;
 
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
@@ -175,13 +184,50 @@ int main()
 
 			// TASK 4 BLOW DRYER
 			// Add forces
+			// Force Dryer Calculations
+			glm::vec3 forceDryer = glm::vec3(0.0f);
+			float positionY = dryerBase.y;
+			float positiveX = dryerBase.x + dryerLowerRadius;
+			float positiveZ = dryerBase.z + dryerLowerRadius;
+			float negativeX = dryerBase.x - dryerLowerRadius;
+			float negativeZ = dryerBase.z - dryerLowerRadius;
+			for (int i = 0; i < dryerSections; i++)
+			{
+				// Check if particle is in y range of the dryer
+				if (particleInCube.getPos().y < (positionY + dryerHeight/dryerSections) && particleInCube.getPos().y >= (positionY))
+				{
+					std::cout << "Particle position Y: " + std::to_string(positionY) << '\n';
+					// Check if particle is in the x and z ranges of the dryer
+					if ((particleInCube.getPos().x < (positiveX) && particleInCube.getPos().x >(negativeX)) && (particleInCube.getPos().z < (positiveZ) && particleInCube.getPos().z >(negativeZ)))
+					{
+						std::cout << "Particle position X: " + std::to_string(positiveX) << '\n';
+						// The faero along the Y axis decreases with the height
+						float faeroY = faero * 4.0f / (particleInCube.getPos().y * energyDecrease);
+						// The faero along the X and Z axis decreases with the radius
+						float faeroX = faero / (particleInCube.getPos().x * energyDecrease);
+						float faeroZ = faero / (particleInCube.getPos().z * energyDecrease);
+						forceDryer = glm::vec3(faeroX, faeroY, faeroZ);
+						//std::cout << forceDryer.y << '\n';
+						//std::cout << "Particle position: " + std::to_string(particleInCube.getPos().x) << '\n';
+						break;
+					}
+				}
+				//Update section(x,y,z)
+				positionY += dryerHeight / dryerSections;
+				positiveX += dryerRadiusIncrease;
+				positiveZ += dryerRadiusIncrease;
+				negativeX -= dryerRadiusIncrease;
+				negativeZ -= dryerRadiusIncrease;
+			}
+			//std::cout << "Force Dryer: " + std::to_string(forceDryer.y) << '\n';
 			glm::vec3 forceg = particleInCube.getMass() * g;
-			glm::vec3 totalForce = forceg;
+			glm::vec3 totalForce = forceg + forceDryer;
 			// Compute acceleration
 			particleInCube.setAcc(totalForce / particleInCube.getMass());
 			// Integrate to calculate new velocity and position
 			particleInCube.setVel(particleInCube.getVel() + particleInCube.getAcc() * deltaTime);
 			particleInCube.translate(particleInCube.getVel() * deltaTime);
+			// Cube collisions
 			for (int i = 0; i < 3; i++)
 			{
 				if (particleInCube.getPos()[i] >= cubeCorner[i])

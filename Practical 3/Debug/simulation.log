@@ -1,2 +1,3 @@
 ﻿  main.cpp
-  simulation.vcxproj -> C:\Users\40284094\Desktop\Physics_Practicals\project2\Debug\simulation.exe
+c:\users\marcos\desktop\physics_practicals\practical 3\main.cpp(106): warning C4305: 'initializing': truncation from 'double' to 'float'
+  simulation.vcxproj -> C:\Users\Marcos\Desktop\Physics_Practicals\Practical 3\Debug\simulation.exe
