@@ -238,7 +238,6 @@ int main()
 			t += deltaTime;
 		}
 
-
 		/*
 		**	RENDER
 		*/
