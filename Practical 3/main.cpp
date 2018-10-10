@@ -51,14 +51,20 @@ int main()
 	glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
 
 	// TASK 2 PARTICLE BOUNCING INSIDE CUBE VARIABLES
-	/*Particle particleInCube = Particle::Particle();
+	// Cube
+	/*Mesh cube = Mesh::Mesh(Mesh::CUBE);
+	cube.scale(glm::vec3(2.5f, 2.5f, 2.5f));
+	cube.translate(glm::vec3(0.0f, 2.5f, 0.0f));
+	cube.setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_transparent.frag"));
+	glm::vec3 cubeCorner = glm::vec3(2.5f, 5.0f, 2.5f);
+	glm::vec3 cubeDimensions = glm::vec3(5.0f);
+	// Particle
+	Particle particleInCube = Particle::Particle();
 	particleInCube.translate(glm::vec3(0.0f, 2.5f, 0.0f));
 	particleInCube.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
 	particleInCube.setMass(2.0f);
 	particleInCube.setAcc(glm::vec3(0.0f));
 	particleInCube.setVel(glm::vec3(10.0f, 8.0f, 5.0f));
-	glm::vec3 cubeCorner = glm::vec3(2.5f, 5.0f, 2.5f);
-	glm::vec3 cubeDimensions = glm::vec3(5.0f);
 	float energyDrain = 1.05f;*/
 
 	// TASK 3 INTEGRATION METHODS VARIABLES
@@ -186,18 +192,14 @@ int main()
 			if (particleInCube.getPos().y < (dryerHeight + dryerPeak.y))
 			{
 				// Check if the particle its in the x and z ranges
-				std::cout << "1 X= " + std::to_string(particleInCube.getPos().x) << "\n";
-				std::cout << "1 Y= " + std::to_string(particleInCube.getPos().y) << "\n";
-				std::cout << "1 Z= " + std::to_string(particleInCube.getPos().z) << "\n";
 				float newHeight = particleInCube.getPos().y + glm::abs(dryerPeak.y);
 				float radiusRange = (newHeight * dryerRadius) / dryerHeight;
-				if ((particleInCube.getPos().x <= (dryerPeak.x + radiusRange) && particleInCube.getPos().x >=(dryerPeak.x - radiusRange)) && (particleInCube.getPos().z <= (dryerPeak.z + radiusRange) && particleInCube.getPos().z >=(dryerPeak.z - radiusRange)))
+				if ((particleInCube.getPos().x < (dryerPeak.x + radiusRange) && particleInCube.getPos().x >(dryerPeak.x - radiusRange)) && (particleInCube.getPos().z < (dryerPeak.z + radiusRange) && particleInCube.getPos().z >(dryerPeak.z - radiusRange)))
 				{
-					std::cout << "2= " + std::to_string(particleInCube.getPos().y) << "\n";
 					// Use the normalize direction of the particle to apply the force
 					glm::vec3 direction = glm::normalize(particleInCube.getPos() - dryerPeak);
 					fdryer = direction * faero;
-					// Reduce the force base on how far of the cone you are
+					// Reduce the force base on how far of the cone the particle is
 					if (particleInCube.getPos().x != 0.0f && particleInCube.getPos().y != 0.0f && particleInCube.getPos().z != 0.0f)
 					{
 						fdryer.x /= glm::abs(particleInCube.getPos().x * 4.0f);
@@ -246,7 +248,8 @@ int main()
 		app.draw(plane);
 
 		// TASK 2 PARTICLE BOUNCING INSIDE CUBE
-		//app.draw(particleInCube.getMesh());
+		/*app.draw(particleInCube.getMesh());
+		app.draw(cube);*/
 
 		// TASK 3 INTEGRATION METHODS
 		/*app.draw(staticParticle.getMesh());
