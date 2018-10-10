@@ -97,14 +97,10 @@ int main()
 	particleInCube.setVel(glm::vec3(10.0f, 8.0f, 5.0f));
 	float energyDrain = 1.05f;
 	// Blow Dryer
-	glm::vec3 dryerBase = glm::vec3(0.0f);
-	float dryerUpperRadius = 1.0f;
-	float dryerLowerRadius = 0.5f;
-	float dryerHeight = 2.0f;
-	float dryerSections = 20.0f;
-	float dryerRadiusIncrease = (dryerUpperRadius - dryerLowerRadius) / dryerSections;
-	float faero = 0.5 * 1.255 * (50.0 * 50.0) * 1.05 * 0.01;
-	float energyDecrease = 2.0f;
+	glm::vec3 dryerPeak = glm::vec3(0.0f, -2.0f, 0.0f);
+	float dryerHeight = 4.0f;
+	float dryerRadius = 1.5f;
+	float faero = 0.5f * 0.125f * (200.0f * 200.0f) * 1.05f * 0.1f;
 
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
@@ -184,44 +180,34 @@ int main()
 
 			// TASK 4 BLOW DRYER
 			// Add forces
-			// Force Dryer Calculations
-			glm::vec3 forceDryer = glm::vec3(0.0f);
-			float positionY = dryerBase.y;
-			float positiveX = dryerBase.x + dryerLowerRadius;
-			float positiveZ = dryerBase.z + dryerLowerRadius;
-			float negativeX = dryerBase.x - dryerLowerRadius;
-			float negativeZ = dryerBase.z - dryerLowerRadius;
-			for (int i = 0; i < dryerSections; i++)
+			// Calculate blow dryer force
+			glm::vec3 fdryer = glm::vec3(0.0f);
+			// Check if the particle its in the y range of the cone
+			if (particleInCube.getPos().y < (dryerHeight + dryerPeak.y))
 			{
-				// Check if particle is in y range of the dryer
-				if (particleInCube.getPos().y < (positionY + dryerHeight/dryerSections) && particleInCube.getPos().y >= (positionY))
+				// Check if the particle its in the x and z ranges
+				std::cout << "1 X= " + std::to_string(particleInCube.getPos().x) << "\n";
+				std::cout << "1 Y= " + std::to_string(particleInCube.getPos().y) << "\n";
+				std::cout << "1 Z= " + std::to_string(particleInCube.getPos().z) << "\n";
+				float newHeight = particleInCube.getPos().y + glm::abs(dryerPeak.y);
+				float radiusRange = (newHeight * dryerRadius) / dryerHeight;
+				if ((particleInCube.getPos().x <= (dryerPeak.x + radiusRange) && particleInCube.getPos().x >=(dryerPeak.x - radiusRange)) && (particleInCube.getPos().z <= (dryerPeak.z + radiusRange) && particleInCube.getPos().z >=(dryerPeak.z - radiusRange)))
 				{
-					std::cout << "Particle position Y: " + std::to_string(positionY) << '\n';
-					// Check if particle is in the x and z ranges of the dryer
-					if ((particleInCube.getPos().x < (positiveX) && particleInCube.getPos().x >(negativeX)) && (particleInCube.getPos().z < (positiveZ) && particleInCube.getPos().z >(negativeZ)))
+					std::cout << "2= " + std::to_string(particleInCube.getPos().y) << "\n";
+					// Use the normalize direction of the particle to apply the force
+					glm::vec3 direction = glm::normalize(particleInCube.getPos() - dryerPeak);
+					fdryer = direction * faero;
+					// Reduce the force base on how far of the cone you are
+					if (particleInCube.getPos().x != 0.0f && particleInCube.getPos().y != 0.0f && particleInCube.getPos().z != 0.0f)
 					{
-						std::cout << "Particle position X: " + std::to_string(positiveX) << '\n';
-						// The faero along the Y axis decreases with the height
-						float faeroY = faero * 4.0f / (particleInCube.getPos().y * energyDecrease);
-						// The faero along the X and Z axis decreases with the radius
-						float faeroX = faero / (particleInCube.getPos().x * energyDecrease);
-						float faeroZ = faero / (particleInCube.getPos().z * energyDecrease);
-						forceDryer = glm::vec3(faeroX, faeroY, faeroZ);
-						//std::cout << forceDryer.y << '\n';
-						//std::cout << "Particle position: " + std::to_string(particleInCube.getPos().x) << '\n';
-						break;
+						fdryer.x /= glm::abs(particleInCube.getPos().x * 4.0f);
+						fdryer.y /= glm::abs(particleInCube.getPos().y * 2.0f);
+						fdryer.z /= glm::abs(particleInCube.getPos().z * 4.0f);
 					}
 				}
-				//Update section(x,y,z)
-				positionY += dryerHeight / dryerSections;
-				positiveX += dryerRadiusIncrease;
-				positiveZ += dryerRadiusIncrease;
-				negativeX -= dryerRadiusIncrease;
-				negativeZ -= dryerRadiusIncrease;
 			}
-			//std::cout << "Force Dryer: " + std::to_string(forceDryer.y) << '\n';
-			glm::vec3 forceg = particleInCube.getMass() * g;
-			glm::vec3 totalForce = forceg + forceDryer;
+			glm::vec3 fgravity = particleInCube.getMass() * g;
+			glm::vec3 totalForce = fgravity + fdryer;
 			// Compute acceleration
 			particleInCube.setAcc(totalForce / particleInCube.getMass());
 			// Integrate to calculate new velocity and position
