@@ -96,11 +96,11 @@ int main()
 	glm::vec3 cubeDimensions = glm::vec3(5.0f);
 	// Particles 
 	Particle particleInCube = Particle::Particle();
-	particleInCube.translate(glm::vec3(0.0f, 2.5f, 0.0f));
+	particleInCube.translate(glm::vec3(0.0f, 3.0f, 0.0f));
 	particleInCube.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
 	particleInCube.setMass(2.0f);
 	particleInCube.setAcc(glm::vec3(0.0f));
-	particleInCube.setVel(glm::vec3(10.0f, 8.0f, 5.0f));
+	particleInCube.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
 	float energyDrain = 1.05f;
 	// Blow Dryer
 	glm::vec3 dryerPeak = glm::vec3(0.0f, -2.0f, 0.0f);
