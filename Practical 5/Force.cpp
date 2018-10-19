@@ -37,7 +37,7 @@ glm::vec3 Hooke::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel)
 	float v1 = glm::dot(e, getParticle1()->getVel());
 	float v2 = glm::dot(e, getParticle2()->getVel());
 	// Compute 1D force
-	float fsd = -getStiffnes()*(getRestLength() - length) - getDamperCoefficient()*(v1 - v2);
+	float fsd = -getStiffnes()*(getRestLength() - length) - getDamperCoefficient() * (v1 - v2);
 	// Return the force in 3D
 	return fsd * e;
 }

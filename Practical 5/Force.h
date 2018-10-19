@@ -38,9 +38,16 @@ class Drag : public Force
 {
 public:
 	Drag() {}
+	Drag(Body* b1, Body* b2, Body *b3,  const glm::vec3 wind, float cd, float a, glm::vec3 n)
+	{
+		m_wind = wind; m_cd = cd; m_a = a; m_n = n;
+	}
 	// Physics
-	glm::vec3 apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel);private:
-
+	glm::vec3 apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel);private:
+	glm::vec3 m_wind;	// Velocity of the wind
+	float m_cd;			// Drag coefficient
+	float m_a;			// Area of the surface
+	glm::vec3 m_n;		// Normal of the surface
 };
 
 // HOOKE CLASS
