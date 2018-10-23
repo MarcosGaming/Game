@@ -36,6 +36,7 @@ GLfloat accumulator = 0.0f;
 glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
 Gravity* fgravity = new Gravity(g);
 
+
 // main function
 int main()
 {
@@ -161,13 +162,17 @@ int main()
 	}
 	// Add forces to particles
 	int numberOfParticlesWithForces = 10;
-	float ks = 15.0f;
-	float kd = 5.0f;
+	float ks = 20.0f;
+	float kd = 10.0f;
 	float rest = 0.5f;
+	glm::vec3 wind = glm::vec3(0.0f, 0.5f, 0.5f);
+	float dragCoefficient = 0.5f;
+	float mediumDensity = 1.0f;
 	for (int i = 0; i < numberOfParticlesWithForces; i++)
 	{
 		for (int j = 1; j < numberOfParticlesWithForces; j++)
 		{
+			// Spring damper and gravity forces
 			particles[i][j].addForce(fgravity);
 			// 4 connections for all particles
 			Hooke* fsd1 = new Hooke(&particles[i][j], &particles[i][j-1], ks, kd, rest);
@@ -190,9 +195,35 @@ int main()
 				Hooke* fsd4 = new Hooke(&particles[i][j], &particles[i + 1][j], ks, kd, rest);
 				particles[i][j].addForce(fsd4);
 			}
+
+			// Aerodynamic drag forces
+			// The las column is not count and in each particle two triangles are formed
+			if (i < numberOfParticlesWithForces - 1)
+			{
+				// The uper triangle is not added for the particles in the first row
+				if (j - 1 > 0)
+				{
+					// This force need to be added to the three particles involved
+					Drag* faero1 = new Drag(&particles[i][j], &particles[i + 1][j], &particles[i + 1][j - 1], wind, dragCoefficient, mediumDensity);
+					particles[i][j].addForce(faero1);
+					particles[i + 1][j].addForce(faero1);
+					particles[i + 1][j - 1].addForce(faero1);
+				}
+				// The lower triangle is not added for the particles in the last row
+				if (j + 1 < numberOfParticlesWithForces)
+				{
+					// This force need to be added to the three particles involved
+					Drag* faero2 = new Drag(&particles[i][j], &particles[i + 1][j], &particles[i][j + 1], wind, dragCoefficient, mediumDensity);
+					particles[i][j].addForce(faero2);
+					particles[i + 1][j].addForce(faero2);
+					particles[i][j + 1].addForce(faero2);
+				}
+			}
+
 		}
 	}
 
+	float energyDrain = 1.5f;
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
 	{
@@ -272,7 +303,7 @@ int main()
 					// Calculate acceleration
 					particles[i][j].setAcc(particles[i][j].applyForces(particles[i][j].getPos(), particles[i][j].getVel(), t, deltaTime));
 					// Integrate to calculate new velocity and position
-					particles[i][j].setVel(particles[i][j].getVel() + particles[i][j].getAcc() * deltaTime);
+					particles[i][j].setVel(particles[i][j].getVel() + particles[i][j].getAcc() * deltaTime/energyDrain);
 					particles[i][j].translate(particles[i][j].getVel() * deltaTime);
 					// Plane collision
 					if (particles[i][j].getPos().y <= plane.getPos().y)
@@ -282,7 +313,7 @@ int main()
 					}
 				}
 			}
-
+			
 			accumulator -= deltaTime;
 			t += deltaTime;
 		}

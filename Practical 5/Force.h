@@ -38,16 +38,37 @@ class Drag : public Force
 {
 public:
 	Drag() {}
-	Drag(Body* b1, Body* b2, Body *b3,  const glm::vec3 wind, float cd, float a, glm::vec3 n)
+	Drag(Body* b1, Body* b2, Body *b3, const glm::vec3 wind, float cd, float p)
 	{
-		m_wind = wind; m_cd = cd; m_a = a; m_n = n;
+		m_b1 = b1; m_b2 = b2; m_b3 = b3; m_wind = wind; m_cd = cd; m_p = p;
 	}
 	// Physics
-	glm::vec3 apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel);private:
+	glm::vec3 apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel);
+	// Getters and setters
+	Body* getParticle1() { return m_b1; }
+	void setParticle1(Body* b1) { m_b1 = b1; }
+
+	Body* getParticle2() { return m_b2; }
+	void setParticle2(Body* b2) { m_b2 = b2; }
+
+	Body* getParticle3() { return m_b3; }
+	void setParticle3(Body* b3) { m_b3 = b3; }
+
+	glm::vec3 getWind() { return m_wind; }
+	void setWind(glm::vec3 wind) { m_wind = wind; }
+
+	float getDragCoefficient() { return m_cd; }
+	void setDragCoefficient(float cd) { m_cd = cd; }
+
+	float getMediumDensity() { return m_p; }
+	void setMediumDensity(float p) { m_p = p; }private:
+
+	Body * m_b1;		// Pointer to the first particle that forms the triangle 
+	Body * m_b2;		// Pointer to the second particle that forms the triangle 
+	Body * m_b3;		// Pointer to the third particle that forms the triangle 
 	glm::vec3 m_wind;	// Velocity of the wind
 	float m_cd;			// Drag coefficient
-	float m_a;			// Area of the surface
-	glm::vec3 m_n;		// Normal of the surface
+	float m_p;			// Medium density
 };
 
 // HOOKE CLASS

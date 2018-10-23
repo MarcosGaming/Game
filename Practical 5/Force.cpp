@@ -20,12 +20,18 @@ glm::vec3 Gravity::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel)
 // DRAG
 glm::vec3 Drag::apply(float mass, const glm ::vec3 &pos, const glm::vec3 &vel)
 {
-	// Return the force(Hardcoded)
-	float mediumDensity = 1.0f;
-	float dragCoefficient = 1.05f;
-	float area = 0.1f;
-	glm::vec3 e = vel / vel;
-	return (0.5f * mediumDensity * (vel*vel) * dragCoefficient * area * e);
+	// Velocity of triangle
+	glm::vec3 v = (getParticle1()->getVel() + getParticle2()->getVel() + getParticle3()->getVel()) / 3;
+	v = v - getWind();
+	// Normal to the surface
+	glm::vec3 p1p2 = getParticle2()->getPos() - getParticle1()->getPos();
+	glm::vec3 p1p3 = getParticle3()->getPos() - getParticle1()->getPos();
+	glm::vec3 n = glm::normalize(glm::cross(p1p2, p1p3));
+	// Area affected by the aerodynamic drag
+	float ao = 0.5 * glm::length(glm::cross(p1p2, p1p3));
+	float a = ao * (glm::dot(v, n)) / glm::length(v);
+	// Return aerodynamic drag force
+	return (0.5 * getMediumDensity() * glm::length(v*v) * getDragCoefficient() * a * n) / 3;
 }
 
 // HOOKE
