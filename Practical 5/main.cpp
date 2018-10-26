@@ -303,7 +303,7 @@ int main()
 					// Calculate acceleration
 					particles[i][j].setAcc(particles[i][j].applyForces(particles[i][j].getPos(), particles[i][j].getVel(), t, deltaTime));
 					// Integrate to calculate new velocity and position
-					particles[i][j].setVel(particles[i][j].getVel() + particles[i][j].getAcc() * deltaTime/energyDrain);
+					particles[i][j].setVel(particles[i][j].getVel() + particles[i][j].getAcc() * deltaTime);
 					particles[i][j].translate(particles[i][j].getVel() * deltaTime);
 					// Plane collision
 					if (particles[i][j].getPos().y <= plane.getPos().y)

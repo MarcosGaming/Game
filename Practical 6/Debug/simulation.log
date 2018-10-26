@@ -1,0 +1,4 @@
+﻿  Mesh.cpp
+c:\users\40284094\desktop\physics_practicals\practical 6\mesh.cpp(299): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdio.h(1197): note: see declaration of 'fscanf'
+  simulation.vcxproj -> C:\Users\40284094\Desktop\Physics_Practicals\Practical 6\Debug\simulation.exe
