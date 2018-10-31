@@ -72,7 +72,7 @@ int main()
 
 	#pragma endregion Task_2_variables
 
-	#pragma region Task_3_variables
+	#pragma region Task_3_And_4_variables
 
 	// Set up a cubic rigid body
 	RigidBody rb = RigidBody();
@@ -83,13 +83,13 @@ int main()
 
 	// rigid body motion values
 	rb.translate(glm::vec3(0.0f, 5.0f, 0.0f));
-	rb.setVel(glm::vec3(0.0f, 7.0f, 0.0f));
-	rb.setAngVel(glm::vec3(0.0f, 2.0f, 0.0f));
+	rb.setVel(glm::vec3(0.0f, 7.0f, 1.0f));
+	rb.setAngVel(glm::vec3(2.0f, 2.0f, 0.0f));
 
 	// add forces to Rigid body
 	rb.addForce(fgravity);
 
-	#pragma endregion Task_3_variables
+	#pragma endregion Task_3_And_4_variables
 	
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
@@ -126,7 +126,7 @@ int main()
 
 			#pragma endregion Task_2_simulation
 
-			#pragma region Task_3_simulation
+			#pragma region Task_3_And_4_simulation
 
 			// integration (translation)
 			rb.setAcc(rb.applyForces(rb.getPos(), rb.getVel(), t, deltaTime));
@@ -147,14 +147,16 @@ int main()
 			// Plane collision
 			for (auto vertex : rb.getMesh().getVertices())
 			{
-				glm::vec3 coordinates = glm::vec4(vertex.getCoord(),0.0f) * rb.getMesh().getModel();
+				glm::vec3 coordinates = rb.getMesh().getModel() * glm::vec4(vertex.getCoord(),1.0f);
 				if (coordinates.y <= plane.getPos().y)
 				{
-					std::cout << "collision detected";
+					rb.setVel(1, -rb.getVel().y);
+					rb.translate(rb.getVel() * deltaTime);
+					//rb.setVel(rb.getVel()/2.0f);
 				}
 			}
 
-			#pragma endregion Task_3_simulation
+			#pragma endregion Task_3_And_4_simulation
 
 			accumulator -= deltaTime;
 			t += deltaTime;
@@ -172,11 +174,11 @@ int main()
 		//app.draw(rb.getMesh());
 		#pragma endregion Task_2_draw
 
-		#pragma region Task_3_draw
+		#pragma region Task_3_And_4_draw
 
 		app.draw(rb.getMesh());
 
-		#pragma endregion Task_3_draw
+		#pragma endregion Task_3_And_4_draw
 
 
 		app.display();

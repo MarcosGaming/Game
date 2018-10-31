@@ -176,7 +176,6 @@ Mesh::Mesh(MeshType type)
 			if (vertex1->getCoord() != vertex2->getCoord())
 			{
 				uniqueFound = true;
-				std::cout << "vertex added";
 				continue;
 			}
 			else
