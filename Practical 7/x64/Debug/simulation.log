@@ -1,0 +1,63 @@
+﻿  OBJLoader.cpp
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(27): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(84): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(121): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(136): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(164): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(262): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(296): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(329): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(378): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\objloader.cpp(386): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+  Mesh.cpp
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\mesh.cpp(69): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+g:\teaching\modules\set09119 - physics-based animation\units\02 - newtonian physics\projects\project2\mesh.cpp(122): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.14393.0\ucrt\stdio.h(1192): note: see declaration of 'fscanf'
+  main.cpp
+  Application.cpp
+  Generating Code...
+Application.obj : error LNK2019: unresolved external symbol glewInit referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwInit referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwTerminate referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+main.obj : error LNK2001: unresolved external symbol glfwTerminate
+Application.obj : error LNK2019: unresolved external symbol glfwWindowHint referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwCreateWindow referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwSetWindowShouldClose referenced in function "void __cdecl keyCallback(struct GLFWwindow *,int,int,int,int)" (?keyCallback@@YAXPEAUGLFWwindow@@HHHH@Z)
+Application.obj : error LNK2019: unresolved external symbol glfwGetFramebufferSize referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwPollEvents referenced in function "public: void __cdecl Application::doMovement(float)" (?doMovement@Application@@QEAAXM@Z)
+Application.obj : error LNK2019: unresolved external symbol glfwSetInputMode referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwSetKeyCallback referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwSetCursorPosCallback referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwSetScrollCallback referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwMakeContextCurrent referenced in function "public: int __cdecl Application::initRender(void)" (?initRender@Application@@QEAAHXZ)
+Application.obj : error LNK2019: unresolved external symbol glfwSwapBuffers referenced in function "public: void __cdecl Application::display(void)" (?display@Application@@QEAAXXZ)
+Application.obj : error LNK2001: unresolved external symbol __glewGetUniformLocation
+Application.obj : error LNK2001: unresolved external symbol __glewUniformMatrix4fv
+Application.obj : error LNK2001: unresolved external symbol __glewUseProgram
+main.obj : error LNK2001: unresolved external symbol __glewUseProgram
+Application.obj : error LNK2001: unresolved external symbol __glewBindVertexArray
+Application.obj : error LNK2001: unresolved external symbol glewExperimental
+main.obj : error LNK2019: unresolved external symbol glfwWindowShouldClose referenced in function main
+main.obj : error LNK2019: unresolved external symbol glfwGetTime referenced in function main
+main.obj : error LNK2001: unresolved external symbol __glewAttachShader
+main.obj : error LNK2001: unresolved external symbol __glewCompileShader
+main.obj : error LNK2001: unresolved external symbol __glewCreateProgram
+main.obj : error LNK2001: unresolved external symbol __glewCreateShader
+main.obj : error LNK2001: unresolved external symbol __glewDeleteShader
+main.obj : error LNK2001: unresolved external symbol __glewGetProgramInfoLog
+main.obj : error LNK2001: unresolved external symbol __glewGetProgramiv
+main.obj : error LNK2001: unresolved external symbol __glewGetShaderInfoLog
+main.obj : error LNK2001: unresolved external symbol __glewGetShaderiv
+main.obj : error LNK2001: unresolved external symbol __glewLinkProgram
+main.obj : error LNK2001: unresolved external symbol __glewShaderSource
+Mesh.obj : error LNK2001: unresolved external symbol __imp___glewBindBuffer
+Mesh.obj : error LNK2001: unresolved external symbol __imp___glewBufferData
+Mesh.obj : error LNK2001: unresolved external symbol __imp___glewGenBuffers
+Mesh.obj : error LNK2001: unresolved external symbol __imp___glewEnableVertexAttribArray
+Mesh.obj : error LNK2001: unresolved external symbol __imp___glewVertexAttribPointer
+Mesh.obj : error LNK2001: unresolved external symbol __imp___glewBindVertexArray
+Mesh.obj : error LNK2001: unresolved external symbol __imp___glewGenVertexArrays
+.\glew\lib\Release\Win32\glew32s.lib : warning LNK4272: library machine type 'X86' conflicts with target machine type 'x64'
+.\glfw\lib-vc2015\glfw3.lib : warning LNK4272: library machine type 'X86' conflicts with target machine type 'x64'
+.\soil\lib\soil2-debug.lib : warning LNK4272: library machine type 'X86' conflicts with target machine type 'x64'
+G:\Teaching\Modules\SET09119 - Physics-based animation\units\02 - Newtonian Physics\projects\project2\x64\Debug\simulation.exe : fatal error LNK1120: 39 unresolved externals
