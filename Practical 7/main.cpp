@@ -66,8 +66,12 @@ int main()
 
 	// rigid body motion values
 	rb.translate(glm::vec3(0.0f, 5.0f, 0.0f));
-	rb.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+	rb.setVel(glm::vec3(3.0f, 0.0f, 0.0f));
 	rb.setAngVel(glm::vec3(0.0f, 0.0f, 0.0f));
+
+	// impulses
+	bool impulsed = false;
+	glm::vec3 j = glm::vec3(-3.0f, 0.0f, 0.0f);
 
 	// add forces to Rigid body
 	//rb.addForce(fgravity);
@@ -126,9 +130,16 @@ int main()
 				{
 					rb.setVel(1, -rb.getVel().y);
 					rb.translate(rb.getVel() * deltaTime);
-					//rb.setVel(rb.getVel()/2.0f);
 				}
 			}
+
+			// impulses
+			if (currentTime > 2.0f && !impulsed)
+			{
+				rb.setVel(j / rb.getMass());
+				impulsed = true;
+			}
+			//rb.setAngVel(rb.getInvInertia() * (glm::cross(rb.getPos() + glm::vec3(1.0, 1.0f,0) - rb.getPos(), j)));
 
 			#pragma endregion Task_2_simulation
 
