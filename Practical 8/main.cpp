@@ -82,6 +82,32 @@ int main()
 	#pragma region Task_2_and_3_variables
 
 	// Set up a cubic rigid body
+	/*RigidBody rb = RigidBody();
+	Mesh m = Mesh::Mesh(Mesh::CUBE);
+	rb.setMesh(m);
+	Shader rbShader = Shader("resources/shaders/physics.vert ", "resources/shaders/physics.frag ");
+	rb.getMesh().setShader(rbShader);
+	rb.setMass(1.0f);
+	rb.scale(glm::vec3(1.0f, 3.0f, 1.0f));
+
+	// rigid body motion values
+	rb.translate(glm::vec3(0.0f, 5.0f, 0.0f));
+	rb.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+	rb.setAngVel(glm::vec3(0.0f, 0.0f, 0.5f));
+
+	// add forces
+	rb.addForce(fgravity);
+
+	// impulse elements
+	float e = 1.0f;
+	bool collision = false;
+	int vertexCount = 0;
+	glm::vec3 verticesInCollision[4];*/
+
+	#pragma endregion Task_2_and_3_variables
+
+	#pragma region Task_4_variables
+
 	RigidBody rb = RigidBody();
 	Mesh m = Mesh::Mesh(Mesh::CUBE);
 	rb.setMesh(m);
@@ -93,18 +119,18 @@ int main()
 	// rigid body motion values
 	rb.translate(glm::vec3(0.0f, 5.0f, 0.0f));
 	rb.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
-	rb.setAngVel(glm::vec3(0.1f, 0.1f, 0.1f));
+	rb.setAngVel(glm::vec3(0.0f, 0.0f, 0.5f));
 
 	// add forces
 	rb.addForce(fgravity);
 
 	// impulse elements
-	float e = 0.7f;
+	float e = 0.6f;
 	bool collision = false;
 	int vertexCount = 0;
 	glm::vec3 verticesInCollision[4];
 
-	#pragma endregion Task_2_and_3_variables
+	#pragma endregion Task_4_variables
 	
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
@@ -157,7 +183,7 @@ int main()
 			#pragma region Task_2_and_3_simulation
 
 			// integration (translation)
-			rb.setAcc(rb.applyForces(rb.getPos(), rb.getVel(), t, deltaTime));
+			/*rb.setAcc(rb.applyForces(rb.getPos(), rb.getVel(), t, deltaTime));
 			rb.setVel(rb.getVel() + deltaTime * rb.getAcc());
 			rb.translate(rb.getVel() * deltaTime);
 
@@ -173,6 +199,7 @@ int main()
 			rb.setRotate(glm::mat4(R));
 
 			// Check how many vertex are in collision with the plane 
+			float lowestCoordinate = plane.getPos().y;
 			for (auto vertex : rb.getMesh().getVertices())
 			{
 				glm::vec3 coordinates = rb.getMesh().getModel() * glm::vec4(vertex.getCoord(), 1.0f);
@@ -181,6 +208,11 @@ int main()
 					verticesInCollision[vertexCount] = coordinates;
 					vertexCount++;
 					collision = true;
+					// Set which coordinate is the lowest
+					if (coordinates.y < lowestCoordinate)
+					{
+						lowestCoordinate = coordinates.y;
+					}
 				}
 			}
 			// Apply the collision
@@ -213,14 +245,14 @@ int main()
 					std::cout << glm::to_string(verticesInCollision[2]) << '\n';
 					std::cout << glm::to_string(verticesInCollision[3]) << '\n';
 				}
-				// output average of all cordinates
-				std::cout << "Average of all coordinates : " << '\n';
-				std::cout << glm::to_string(collisionPoint) << '\n';
 				// reset count and boolean
 				vertexCount = 0;
 				collision = false;
-				// Translate the rigid body up a bit so it does not overlap the plane
-				rb.translate(glm::vec3(0.0f, 0.01f, 0.0f));
+				// output average of all cordinates
+				std::cout << "Average of all coordinates : " << '\n';
+				std::cout << glm::to_string(collisionPoint) << '\n';
+				// Translate the lowest vertex a bit so it does not overlap the plane
+				rb.translate(glm::vec3(0.0f, glm::abs(plane.getPos().y - lowestCoordinate), 0.0f));
 				// r is the vector of the centre of mass and the point of collision
 				glm::vec3 r = collisionPoint - rb.getPos();
 				// n is the normal of the plane of collision, in this case the normal of the plane
@@ -232,9 +264,115 @@ int main()
 				// set the new velocities
 				rb.setVel(rb.getVel() + (jr / rb.getMass())*n);
 				rb.setAngVel(rb.getAngVel() + jr * rb.getInvInertia() * glm::cross(r, n));
-			}
+
+				// create skew symmetric matrix for w
+				angVelSkew = glm::matrixCross3(rb.getAngVel());
+				// create 3x3 rotation matrix from rb rotation matrix
+				R = glm::mat3(rb.getRotate());
+				// update rotation matrix
+				R += deltaTime * angVelSkew *R;
+				R = glm::orthonormalize(R);
+				rb.setRotate(glm::mat4(R));
+			}*/
 
 			#pragma endregion Task_2_and_3_simulation
+
+			#pragma region Task_4_simulation
+
+			// integration (translation)
+			rb.setAcc(rb.applyForces(rb.getPos(), rb.getVel(), t, deltaTime));
+			rb.setVel(rb.getVel() + deltaTime * rb.getAcc());
+			rb.translate(rb.getVel() * deltaTime);
+
+			// integration ( rotation )
+			rb.setAngVel(rb.getAngVel() + deltaTime * rb.getAngAcc());
+			// create skew symmetric matrix for w
+			glm::mat3 angVelSkew = glm::matrixCross3(rb.getAngVel());
+			// create 3x3 rotation matrix from rb rotation matrix
+			glm::mat3 R = glm::mat3(rb.getRotate());
+			// update rotation matrix
+			R += deltaTime * angVelSkew *R;
+			R = glm::orthonormalize(R);
+			rb.setRotate(glm::mat4(R));
+
+			// Check how many vertex are in collision with the plane 
+			float lowestCoordinate = plane.getPos().y;
+			for (auto vertex : rb.getMesh().getVertices())
+			{
+				glm::vec3 coordinates = rb.getMesh().getModel() * glm::vec4(vertex.getCoord(), 1.0f);
+				if (coordinates.y <= plane.getPos().y)
+				{
+					verticesInCollision[vertexCount] = coordinates;
+					vertexCount++;
+					collision = true;
+					// Set which coordinate is the lowest
+					if (coordinates.y < lowestCoordinate)
+					{
+						lowestCoordinate = coordinates.y;
+					}
+				}
+			}
+			// Apply the collision
+			if (collision)
+			{
+				std::cout << "Colliding Vertices : " << '\n';
+				glm::vec3 collisionPoint;
+				// Vertex
+				if (vertexCount == 1)
+				{
+					collisionPoint = verticesInCollision[0];
+					// output coordinates of colliding vertices
+					std::cout << glm::to_string(verticesInCollision[0]) << '\n';
+				}
+				// Edge
+				else if (vertexCount == 2)
+				{
+					collisionPoint = (verticesInCollision[0] + verticesInCollision[1]) / 2;
+					// output coordinates of colliding vertices
+					std::cout << glm::to_string(verticesInCollision[0]) << '\n';
+					std::cout << glm::to_string(verticesInCollision[1]) << '\n';
+				}
+				// Face
+				else if (vertexCount == 4)
+				{
+					collisionPoint = (verticesInCollision[0] + verticesInCollision[1] + verticesInCollision[2] + verticesInCollision[3]) / 4;
+					// output coordinates of colliding vertices
+					std::cout << glm::to_string(verticesInCollision[0]) << '\n';
+					std::cout << glm::to_string(verticesInCollision[1]) << '\n';
+					std::cout << glm::to_string(verticesInCollision[2]) << '\n';
+					std::cout << glm::to_string(verticesInCollision[3]) << '\n';
+				}
+				// reset count and boolean
+				vertexCount = 0;
+				collision = false;
+				// output average of all cordinates
+				std::cout << "Average of all coordinates : " << '\n';
+				std::cout << glm::to_string(collisionPoint) << '\n';
+				// Translate the lowest vertex a bit so it does not overlap the plane
+				rb.translate(glm::vec3(0.0f, glm::abs(plane.getPos().y - lowestCoordinate), 0.0f));
+				// r is the vector of the centre of mass and the point of collision
+				glm::vec3 r = collisionPoint - rb.getPos();
+				// n is the normal of the plane of collision, in this case the normal of the plane
+				glm::vec3 n = glm::vec3(0.0f, 1.0f, 0.0f);
+				// vr is the relative velocity
+				glm::vec3 vr = rb.getVel() + glm::cross(rb.getAngVel(), r);
+				// calculate the impulse
+				float jr = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / rb.getMass()) + glm::dot(n, (glm::cross(rb.getInvInertia()* glm::cross(r, n), r))));
+				// set the new velocities
+				rb.setVel(rb.getVel() + (jr / rb.getMass())*n);
+				rb.setAngVel(rb.getAngVel() + jr * rb.getInvInertia() * glm::cross(r, n));
+
+				// create skew symmetric matrix for w
+				angVelSkew = glm::matrixCross3(rb.getAngVel());
+				// create 3x3 rotation matrix from rb rotation matrix
+				R = glm::mat3(rb.getRotate());
+				// update rotation matrix
+				R += deltaTime * angVelSkew *R;
+				R = glm::orthonormalize(R);
+				rb.setRotate(glm::mat4(R));
+			}
+
+			#pragma endregion Task_4_simulation
 
 			accumulator -= deltaTime;
 			t += deltaTime;
