@@ -1,23 +1,2 @@
-﻿  Application.cpp
-  Body.cpp
-  Force.cpp
-c:\users\40284094\desktop\physics_practicals\practical 5\force.cpp(31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  Mesh.cpp
-c:\users\40284094\desktop\physics_practicals\practical 5\mesh.cpp(272): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdio.h(1197): note: see declaration of 'fscanf'
-  OBJLoader.cpp
-c:\users\40284094\desktop\physics_practicals\practical 5\objloader.cpp(378): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-  Particle.cpp
-  main.cpp
-  Generating Code...
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-Mesh.obj : warning LNK4049: locally defined symbol ___glewBindBuffer imported
-Mesh.obj : warning LNK4049: locally defined symbol ___glewBufferData imported
-Mesh.obj : warning LNK4049: locally defined symbol ___glewGenBuffers imported
-Mesh.obj : warning LNK4049: locally defined symbol ___glewEnableVertexAttribArray imported
-Mesh.obj : warning LNK4049: locally defined symbol ___glewVertexAttribPointer imported
-Mesh.obj : warning LNK4049: locally defined symbol ___glewBindVertexArray imported
-Mesh.obj : warning LNK4049: locally defined symbol ___glewGenVertexArrays imported
-glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Users\40284094\Desktop\Physics_Practicals\Practical 5\Debug\vc120.pdb'; linking object as if no debug info
+﻿  main.cpp
   simulation.vcxproj -> C:\Users\40284094\Desktop\Physics_Practicals\Practical 5\Debug\simulation.exe

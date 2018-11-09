@@ -89,7 +89,7 @@ int main()
 	// rigid body motion values
 	rb.translate(glm::vec3(0.0f, 5.0f, 0.0f));
 	rb.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
-	rb.setAngVel(glm::vec3(0.0f, 0.0f, 0.0f));
+	rb.setAngVel(glm::vec3(1.0f, 1.0f, 1.0f));
 
 	// add forces
 	rb.addForce(fgravity);
@@ -98,7 +98,7 @@ int main()
 	float e = 1.0f;
 	bool collision = false;
 	int vertexCount = 0;
-	glm::vec3 *verticesInCollision[4];
+	glm::vec3 verticesInCollision[4];
 
 	#pragma endregion Task_3_variables
 	
@@ -155,7 +155,7 @@ int main()
 			if (currentTime > 2.0f && !impulsed)
 			{
 				rb.setVel(rb.getVel() + j / rb.getMass());
-				rb.setAngVel(rb.getInvInertia() * glm::cross(rb.getPos() + glm::vec3(1.0f, 0.0f, 0.0f) - rb.getPos(), j));
+				rb.setAngVel(rb.getAngVel() + rb.getInvInertia() * glm::cross(rb.getPos() + glm::vec3(1.0f, 0.0f, 0.0f) - rb.getPos(), j));
 				impulsed = true;
 			}*/
 
@@ -185,33 +185,34 @@ int main()
 				glm::vec3 coordinates = rb.getMesh().getModel() * glm::vec4(vertex.getCoord(), 1.0f);
 				if (coordinates.y <= plane.getPos().y)
 				{
-					verticesInCollision[vertexCount] = &coordinates;
+					verticesInCollision[vertexCount] = coordinates;
 					vertexCount++;
 					collision = true;
 				}
 			}
+			// Apply the collision
 			if(collision)
 			{
 				glm::vec3 collisionPoint;
 				// Vertex
 				if (vertexCount == 1)
 				{
-					collisionPoint = *verticesInCollision[0];
+					collisionPoint = verticesInCollision[0];
 				}
 				// Edge
 				else if (vertexCount == 2)
 				{
-					collisionPoint = (*verticesInCollision[0] + *verticesInCollision[1]) / 2;
+					collisionPoint = (verticesInCollision[0] + verticesInCollision[1]) / 2;
 				}
 				// Face
 				else if (vertexCount == 4)
 				{
-					collisionPoint = glm::vec3(rb.getPos().x, rb.getPos().y - 3.0f, rb.getPos().z);
+					collisionPoint = (verticesInCollision[0] + verticesInCollision[1] + verticesInCollision[2] + verticesInCollision[3]) / 4;
 				}
 				vertexCount = 0;
 				collision = false;
 				// Translate the rigid body up a bit so it does not overlap the plane
-				rb.translate(glm::vec3(0.0f, 0.5f, 0.0f));
+				rb.translate(glm::vec3(0.0f, 0.01f, 0.0f));
 				// r is the vector of the centre of mass and the point of collision
 				glm::vec3 r = collisionPoint - rb.getPos();
 				// n is the normal of the plane of collision, in this case the normal of the plane
@@ -219,7 +220,7 @@ int main()
 				// vr is the relative velocity
 				glm::vec3 vr = rb.getVel() + glm::cross(rb.getAngVel(), r);
 				// calculate the impulse
-				glm::vec3 jr = (-(1.0f + e) * vr * n) / ((1 / rb.getMass()) + n * (rb.getInvInertia()*glm::cross(glm::cross(r, n), r)));
+				float jr = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / rb.getMass()) + glm::dot(n,(glm::cross(rb.getInvInertia()* glm::cross(r, n), r))));
 				// set the new velocities
 				rb.setVel(rb.getVel() + (jr / rb.getMass())*n);
 				rb.setAngVel(rb.getAngVel() + jr * rb.getInvInertia() * glm::cross(r, n));
