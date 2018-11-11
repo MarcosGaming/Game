@@ -117,9 +117,12 @@ int main()
 	rb.scale(glm::vec3(1.0f, 3.0f, 1.0f));
 
 	// rigid body motion values
-	rb.translate(glm::vec3(0.0f, 5.0f, 0.0f));
-	rb.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
-	rb.setAngVel(glm::vec3(0.0f, 0.0f, 0.5f));
+	rb.translate(glm::vec3(0.0f, 20.0f, 0.0f));
+	rb.setVel(glm::vec3(2.0f, 0.0f, 1.0f));
+	rb.setAngVel(glm::vec3(2.0f, 2.0f, 2.0f));
+
+	// this is used to decrease the velocity
+	float initialVelocity = glm::length(rb.getVel()) + 0.2f;
 
 	// add forces
 	rb.addForce(fgravity);
@@ -129,6 +132,7 @@ int main()
 	bool collision = false;
 	int vertexCount = 0;
 	glm::vec3 verticesInCollision[4];
+	float frictionCoefficient = 0.25f;
 
 	#pragma endregion Task_4_variables
 	
@@ -356,17 +360,44 @@ int main()
 				glm::vec3 n = glm::vec3(0.0f, 1.0f, 0.0f);
 				// vr is the relative velocity
 				glm::vec3 vr = rb.getVel() + glm::cross(rb.getAngVel(), r);
-				// calculate the impulse
-				float jr = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / rb.getMass()) + glm::dot(n, (glm::cross(rb.getInvInertia()* glm::cross(r, n), r))));
+				// vt is the direction of the tangencial impulse
+				glm::vec3 vt = vr - (glm::dot(vr, n)*n);
+				// calculate the normal impulse
+				float jn = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / rb.getMass()) + glm::dot(n, (glm::cross(rb.getInvInertia()* glm::cross(r, n), r))));
+				// calculate tangencial impulse
+				glm::vec3 jt;
+				if (vt == glm::vec3(0.0f, 0.0f, 0.0f))
+				{
+					jt = glm::vec3(0.0f, 0.0f, 0.0f);
+				}
+				else
+				{
+					jt = -frictionCoefficient * glm::abs(jn) * glm::normalize(vt);
+				}
+				// total impulse
+				float j = glm::length(jt + (jn * n));
 				// set the new velocities
-				rb.setVel(rb.getVel() + (jr / rb.getMass())*n);
-				rb.setAngVel(rb.getAngVel() + jr * rb.getInvInertia() * glm::cross(r, n));
+				rb.setVel(rb.getVel() + (j / rb.getMass())*n);
+				rb.setAngVel(rb.getAngVel() + j * rb.getInvInertia() * glm::cross(r, n));
+				// dicrease the velocities to make the rigid body stop
+				std::cout << glm::length(rb.getVel()) << '\n';
+				if (glm::length(rb.getVel()) < initialVelocity && glm::length(rb.getVel()) > 0.2f)
+				{
+					rb.setVel(rb.getVel() / 1.05f);
+				}
+				else if (glm::length(rb.getVel()) < 0.2f)
+				{
+					rb.setVel(glm::vec3(0.0f));
+					rb.setAngVel(rb.getAngVel()/1.05f);
+				}
+				if (glm::length(rb.getAngVel()) < 0.08f)
+				{
+					rb.setAngVel(glm::vec3(0.0f));
+				}
 
-				// create skew symmetric matrix for w
+				// Update rotational matrix
 				angVelSkew = glm::matrixCross3(rb.getAngVel());
-				// create 3x3 rotation matrix from rb rotation matrix
 				R = glm::mat3(rb.getRotate());
-				// update rotation matrix
 				R += deltaTime * angVelSkew *R;
 				R = glm::orthonormalize(R);
 				rb.setRotate(glm::mat4(R));
