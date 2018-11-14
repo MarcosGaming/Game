@@ -144,6 +144,7 @@ int main()
 		GLfloat frameTime = newTime - currentTime;
 		currentTime = newTime;
 		accumulator += frameTime;
+		accumulator *= 1.5f;
 
 		/*
 		**	INTERACTION
@@ -319,39 +320,26 @@ int main()
 			// Apply the collision
 			if (collision)
 			{
-				std::cout << "Colliding Vertices : " << '\n';
+				//std::cout << "Colliding Vertices : " << '\n';
 				glm::vec3 collisionPoint;
 				// Vertex
 				if (vertexCount == 1)
 				{
 					collisionPoint = verticesInCollision[0];
-					// output coordinates of colliding vertices
-					std::cout << glm::to_string(verticesInCollision[0]) << '\n';
 				}
 				// Edge
 				else if (vertexCount == 2)
 				{
 					collisionPoint = (verticesInCollision[0] + verticesInCollision[1]) / 2;
-					// output coordinates of colliding vertices
-					std::cout << glm::to_string(verticesInCollision[0]) << '\n';
-					std::cout << glm::to_string(verticesInCollision[1]) << '\n';
 				}
 				// Face
 				else if (vertexCount == 4)
 				{
 					collisionPoint = (verticesInCollision[0] + verticesInCollision[1] + verticesInCollision[2] + verticesInCollision[3]) / 4;
-					// output coordinates of colliding vertices
-					std::cout << glm::to_string(verticesInCollision[0]) << '\n';
-					std::cout << glm::to_string(verticesInCollision[1]) << '\n';
-					std::cout << glm::to_string(verticesInCollision[2]) << '\n';
-					std::cout << glm::to_string(verticesInCollision[3]) << '\n';
 				}
 				// reset count and boolean
 				vertexCount = 0;
 				collision = false;
-				// output average of all cordinates
-				std::cout << "Average of all coordinates : " << '\n';
-				std::cout << glm::to_string(collisionPoint) << '\n';
 				// Translate the lowest vertex a bit so it does not overlap the plane
 				rb.translate(glm::vec3(0.0f, glm::abs(plane.getPos().y - lowestCoordinate), 0.0f));
 				// r is the vector of the centre of mass and the point of collision
@@ -380,7 +368,6 @@ int main()
 				rb.setVel(rb.getVel() + (j / rb.getMass())*n);
 				rb.setAngVel(rb.getAngVel() + j * rb.getInvInertia() * glm::cross(r, n));
 				// dicrease the velocities to make the rigid body stop
-				std::cout << glm::length(rb.getVel()) << '\n';
 				if (glm::length(rb.getVel()) < initialVelocity && glm::length(rb.getVel()) > 0.2f)
 				{
 					rb.setVel(rb.getVel() / 1.05f);
