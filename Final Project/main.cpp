@@ -51,13 +51,14 @@ int main()
 	// Create table
 	Mesh table = Mesh::Mesh(Mesh::QUAD);
 	// Table size is 30x30
-	table.scale(glm::vec3(30.0f, 0.0f, 30.0f));
+	float tableSize = 30.0f;
+	table.scale(glm::vec3(tableSize, 0.0f, tableSize));
 	Shader lambert = Shader("resources/shaders/physics.vert", "resources/shaders/physics.frag");
 	table.setShader(lambert);
 
 	// Array of spheres
-	Sphere spheres[5];
-	int spheresNumber = 5;
+	Sphere spheres[10];
+	int spheresNumber = 10;
 	for (int i = 0; i < spheresNumber; i++)
 	{
 		Sphere s = Sphere::Sphere();
@@ -96,10 +97,7 @@ int main()
 	}
 
 	// impulse elements
-	float e = 0.6f;
-	bool collision = false;
-	int vertexCount = 0;
-	glm::vec3 verticesInCollision[4];
+	float e = 1.0f;
 	float frictionCoefficient = 0.25f;
 	
 	// Game loop
@@ -129,19 +127,76 @@ int main()
 				s.setAcc(s.applyForces(s.getPos(), s.getVel(), t, deltaTime));
 				s.setVel(s.getVel() + deltaTime * s.getAcc());
 				s.translate(s.getVel() * deltaTime);
+
 				// Collision with table
-				if ((s.getPos().x + s.getRadius()) >= table.getPos().x || (s.getPos().x - s.getRadius()) <= table.getPos().x)
+				bool tableCollision = false;
+				glm::vec3 translation;
+				glm::vec3 normal;
+				glm::vec3 collisionPoint;
+				//Right side of the table
+				if ((s.getPos().x + s.getRadius()) >= (table.getPos().x + tableSize))
 				{
+					// The translation vector is set based on the distance between the outside of the sphere and the side of the table
+					translation = glm::vec3(-((s.getPos().x + s.getRadius()) - (table.getPos().x + tableSize)),0.0f,0.0f);
+					collisionPoint = glm::vec3(table.getPos().x + tableSize,s.getPos().y,s.getPos().z);
+					normal = glm::vec3(-1.0f, 0.0f, 0.0f);
+					tableCollision = true;
+				}
+				// Left side of the table
+				else if ((s.getPos().x - s.getRadius()) <= (table.getPos().x - tableSize))
+				{
+					// The translation vector is set based on that distance
+					translation = glm::vec3(glm::abs((table.getPos().x - tableSize) - (s.getPos().x - s.getRadius())), 0.0f, 0.0f);
+					collisionPoint = glm::vec3(table.getPos().x - tableSize, s.getPos().y, s.getPos().z);
+					normal = glm::vec3(1.0f, 0.0f, 0.0f);
+					tableCollision = true;
+				}
+				// Up side of the table
+				else if ((s.getPos().z + s.getRadius()) >= (table.getPos().z + tableSize))
+				{
+					// The translation vector is set based on that distance
+					translation = glm::vec3(0.0f, 0.0f, -((s.getPos().z + s.getRadius()) - (table.getPos().z + tableSize)));
+					collisionPoint = glm::vec3(s.getPos().x, s.getPos().y, table.getPos().z + tableSize);
+					normal = glm::vec3(0.0f, 0.0f, -1.0f);
+					tableCollision = true;
+				}
+				// Down side of the table
+				else if ((s.getPos().z - s.getRadius()) <= (table.getPos().z - tableSize))
+				{
+					// The translation vector is set based on that distance
+					translation = glm::vec3(0.0f, 0.0f, glm::abs((table.getPos().z - tableSize) - (s.getPos().z - s.getRadius())));
+					collisionPoint = glm::vec3(s.getPos().x, s.getPos().y, table.getPos().z - tableSize);
+					normal = glm::vec3(0.0f, 0.0f, 1.0f);
+					tableCollision = true;
+				}
+				if (tableCollision)
+				{
+					// Solve overlaping
+					s.translate(translation);
 					// r is the vector of the centre of mass and the point of collision
-					glm::vec3 r = (s.getPos() - s.getPos();
+					glm::vec3 r = collisionPoint - s.getPos();
 					// n is the normal of the plane of collision, in this case the normal of the plane
-					glm::vec3 n = glm::vec3(0.0f, 1.0f, 0.0f);
+					glm::vec3 n = normal;
 					// vr is the relative velocity
-					glm::vec3 vr = rb.getVel() + glm::cross(rb.getAngVel(), r);
-					// vt is the direction of the tangencial impulse
-					glm::vec3 vt = vr - (glm::dot(vr, n)*n);
-					// calculate the normal impulse
-					float jn = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / rb.getMass()) + glm::dot(n, (glm::cross(rb.getInvInertia()* glm::cross(r, n), r))));
+					glm::vec3 vr = s.getVel() + glm::cross(s.getAngVel(), r);
+					// Calculate the normal impulse
+					float jn = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / s.getMass()) + glm::dot(n, (glm::cross(s.getInvInertia()* glm::cross(r, n), r))));
+					// Calculate new velocities
+					s.setVel(s.getVel() + (jn / s.getMass())*n);
+				}
+
+				//Sphere with sphere collision
+				for (Sphere& sColliding : spheres)
+				{
+					if (&s == &sColliding)
+					{
+						continue;
+					}
+					// Check if the sphere s is colliding with the rest of the spheres
+					if (s.getRadius() + sColliding.getRadius() >= glm::distance(s.getPos(), sColliding.getPos()))
+					{
+						
+					}
 				}
 
 			}
