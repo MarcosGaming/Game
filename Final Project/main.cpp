@@ -192,10 +192,20 @@ int main()
 					{
 						continue;
 					}
-					// Check if the sphere s is colliding with the rest of the spheres
-					if (s.getRadius() + sColliding.getRadius() >= glm::distance(s.getPos(), sColliding.getPos()))
+					// Check if the sphere s is colliding with the sColliding sphere
+					if (s.getRadius() + sColliding.getRadius() > glm::distance(s.getPos(), sColliding.getPos()))
 					{
-						
+						// Solve the overlapping using the velocities of the spheres
+						glm::vec3 direction = glm::normalize(sColliding.getPos() - s.getPos());
+						float totalOverlappingDistance = glm::distance(s.getPos() + (direction*s.getRadius()), sColliding.getPos() + (-direction * sColliding.getRadius()));
+
+
+						// r is the vector of the centre of mass and the point of collision
+						glm::vec3 r = s.getPos();
+						// Calculate relative velocity
+						glm::vec3 vr = sColliding.getVel() - s.getVel();
+						// Calculate the normal impulse
+						float jn = (-(1.0f + e) * glm::dot(vr, r)) / ((1 / s.getMass()) + (1 / sColliding.getMass()));
 					}
 				}
 
