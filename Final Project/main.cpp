@@ -39,6 +39,14 @@ GLfloat accumulator = 0.0f;
 glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
 Gravity* fgravity = new Gravity(g);
 
+// Return random float
+float randomFloat(float min, float max)
+{
+	float random = ((float)rand()) / (float)RAND_MAX;
+	float diff = max - min;
+	float r = random * diff;
+	return min + r;
+}
 
 // main function
 int main()
@@ -66,19 +74,11 @@ int main()
 		s.getMesh().setShader(sShader);
 		s.setMass(1.0f);
 		// Set random initial linear velocity
-		int randomX = rand() % 4000 - 2000;
-		int randomZ = rand() % 4000 - 2000;
-		float vX = (float)randomX / 100.0f;
-		float vZ = (float)randomZ / 100.0f;
-		s.setVel(glm::vec3(vX, 0.0f, vZ));
+		s.setVel(glm::vec3(randomFloat(-20, 20), 0.0f, randomFloat(-20, 20)));
 		// Set random initial position
-		randomX = rand() % 3000 - 1500;
-		randomZ = rand() % 3000 - 1500;
-		float rX = (float)randomX / 100.0f;
-		float rZ = (float)randomZ / 100.0f;
-		s.setPos(glm::vec3(rX, 1.0f, rZ));
+		s.setPos(glm::vec3(randomFloat(-tableSize, tableSize), 1.0f, randomFloat(-tableSize, tableSize)));
 		// Check that the sphere does not overlap with any of the other spheres
-		for (Sphere sp : spheres)
+		/*for (Sphere sp : spheres)
 		{
 			float centreDistances = glm::sqrt(glm::pow(sp.getPos().x - s.getPos().x,2)+glm::pow(sp.getPos().z - s.getPos().z,2));
 			float radiusDistances = s.getRadius() + sp.getRadius();
@@ -91,7 +91,7 @@ int main()
 				float rZ = (float)randomZ / 100.0f;
 				s.setPos(glm::vec3(rX, 1.0f, rZ));
 			}
-		}
+		}*/
 		// Add sphere to array
 		spheres[i] = s;
 	}
@@ -197,15 +197,20 @@ int main()
 					{
 						// Solve the overlapping using the velocities of the spheres
 						glm::vec3 direction = glm::normalize(sColliding.getPos() - s.getPos());
-						float totalOverlappingDistance = glm::distance(s.getPos() + (direction*s.getRadius()), sColliding.getPos() + (-direction * sColliding.getRadius()));
-
-
+						float overlap = (s.getRadius() + sColliding.getRadius()) - glm::distance(s.getPos(), sColliding.getPos());
+						glm::vec3 sTranslate = -direction * (overlap * glm::length(s.getVel() / (s.getVel() + sColliding.getVel())));
+						glm::vec3 sCollidingTranslate = direction * (overlap *  glm::length(sColliding.getVel() / (s.getVel() + sColliding.getVel())));
+						s.translate(sTranslate);
+						sColliding.translate(sCollidingTranslate);
 						// r is the vector of the centre of mass and the point of collision
-						glm::vec3 r = s.getPos();
+						/*glm::vec3 r = (s.getPos()-sTranslate) - s.getPos();
 						// Calculate relative velocity
 						glm::vec3 vr = sColliding.getVel() - s.getVel();
 						// Calculate the normal impulse
 						float jn = (-(1.0f + e) * glm::dot(vr, r)) / ((1 / s.getMass()) + (1 / sColliding.getMass()));
+						// Calculate new velocities
+						s.setVel(s.getVel() + (jn / s.getMass()));
+						sColliding.setVel(sColliding.getVel() + (-jn / sColliding.getMass()));*/
 					}
 				}
 
@@ -335,4 +340,3 @@ int main()
 
 	return EXIT_SUCCESS;
 }
-
