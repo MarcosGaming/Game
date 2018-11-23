@@ -56,6 +56,7 @@ int main()
 	app.initRender();
 	Application::camera.setCameraPosition(glm::vec3(0.0f, 5.0f, 20.0f));
 
+
 	// Create table
 	Mesh table = Mesh::Mesh(Mesh::QUAD);
 	// Table size is 30x30
@@ -64,19 +65,26 @@ int main()
 	Shader lambert = Shader("resources/shaders/physics.vert", "resources/shaders/physics.frag");
 	table.setShader(lambert);
 
+	// Create grid
+	glm::vec3 grid[30][30];
+	float cellsDimension = 5.0f;
+	
+
 	// Array of spheres
-	Sphere spheres[10];
-	int spheresNumber = 10;
+	Sphere spheres[30];
+	int spheresNumber = 30;
+	Shader sShader = Shader("resources/shaders/physics.vert ", "resources/shaders/physics.frag ");
+	Mesh mesh =  Mesh::Mesh("resources/models/sphere.obj");
 	for (int i = 0; i < spheresNumber; i++)
 	{
 		Sphere s = Sphere::Sphere();
-		Shader sShader = Shader("resources/shaders/physics.vert ", "resources/shaders/physics.frag ");
+		s.setMesh(mesh);
 		s.getMesh().setShader(sShader);
 		s.setMass(1.0f);
 		// Set random initial linear velocity
 		s.setVel(glm::vec3(randomFloat(-20, 20), 0.0f, randomFloat(-20, 20)));
 		// Set random initial position
-		s.setPos(glm::vec3(randomFloat(-tableSize, tableSize), 1.0f, randomFloat(-tableSize, tableSize)));
+		s.setPos(glm::vec3(randomFloat(-tableSize, tableSize), s.getRadius(), randomFloat(-tableSize, tableSize)));
 		// Check that the sphere does not overlap with any of the other spheres
 		/*for (Sphere sp : spheres)
 		{
@@ -130,44 +138,30 @@ int main()
 
 				// Collision with table
 				bool tableCollision = false;
-				glm::vec3 translation;
-				glm::vec3 normal;
-				glm::vec3 collisionPoint;
-				//Right side of the table
-				if ((s.getPos().x + s.getRadius()) >= (table.getPos().x + tableSize))
+				glm::vec3 translation = glm::vec3(0.0f);
+				glm::vec3 normal = glm::vec3(0.0f);
+				glm::vec3 collisionPoint = s.getPos();
+				for (int i = 0; i < 3; i++)
 				{
-					// The translation vector is set based on the distance between the outside of the sphere and the side of the table
-					translation = glm::vec3(-((s.getPos().x + s.getRadius()) - (table.getPos().x + tableSize)),0.0f,0.0f);
-					collisionPoint = glm::vec3(table.getPos().x + tableSize,s.getPos().y,s.getPos().z);
-					normal = glm::vec3(-1.0f, 0.0f, 0.0f);
-					tableCollision = true;
-				}
-				// Left side of the table
-				else if ((s.getPos().x - s.getRadius()) <= (table.getPos().x - tableSize))
-				{
-					// The translation vector is set based on that distance
-					translation = glm::vec3(glm::abs((table.getPos().x - tableSize) - (s.getPos().x - s.getRadius())), 0.0f, 0.0f);
-					collisionPoint = glm::vec3(table.getPos().x - tableSize, s.getPos().y, s.getPos().z);
-					normal = glm::vec3(1.0f, 0.0f, 0.0f);
-					tableCollision = true;
-				}
-				// Up side of the table
-				else if ((s.getPos().z + s.getRadius()) >= (table.getPos().z + tableSize))
-				{
-					// The translation vector is set based on that distance
-					translation = glm::vec3(0.0f, 0.0f, -((s.getPos().z + s.getRadius()) - (table.getPos().z + tableSize)));
-					collisionPoint = glm::vec3(s.getPos().x, s.getPos().y, table.getPos().z + tableSize);
-					normal = glm::vec3(0.0f, 0.0f, -1.0f);
-					tableCollision = true;
-				}
-				// Down side of the table
-				else if ((s.getPos().z - s.getRadius()) <= (table.getPos().z - tableSize))
-				{
-					// The translation vector is set based on that distance
-					translation = glm::vec3(0.0f, 0.0f, glm::abs((table.getPos().z - tableSize) - (s.getPos().z - s.getRadius())));
-					collisionPoint = glm::vec3(s.getPos().x, s.getPos().y, table.getPos().z - tableSize);
-					normal = glm::vec3(0.0f, 0.0f, 1.0f);
-					tableCollision = true;
+					if (i != 1)
+					{
+						if (s.getPos()[i] + s.getRadius() >= table.getPos()[i] + tableSize)
+						{
+							translation[i] = -((s.getPos()[i] + s.getRadius()) - (table.getPos()[i] + tableSize));
+							collisionPoint[i] = table.getPos()[i] + tableSize;
+							normal[i] = -1.0f;
+							tableCollision = true;
+							break;
+						}
+						else if (s.getPos()[i] - s.getRadius() <= table.getPos()[i]-tableSize)
+						{
+							translation[i] = glm::abs((table.getPos()[i] - tableSize) - (s.getPos()[i] - s.getRadius()));
+							collisionPoint[i] = table.getPos()[i] - tableSize;
+							normal[i] = 1.0f;
+							tableCollision = true;
+							break;
+						}
+					}
 				}
 				if (tableCollision)
 				{
@@ -185,32 +179,30 @@ int main()
 					s.setVel(s.getVel() + (jn / s.getMass())*n);
 				}
 
-				//Sphere with sphere collision
+				//Sphere with sphere collisions
 				for (Sphere& sColliding : spheres)
 				{
-					if (&s == &sColliding)
+					if (&s != &sColliding)
 					{
-						continue;
-					}
-					// Check if the sphere s is colliding with the sColliding sphere
-					if (s.getRadius() + sColliding.getRadius() > glm::distance(s.getPos(), sColliding.getPos()))
-					{
-						// Solve the overlapping using the velocities of the spheres
-						glm::vec3 direction = glm::normalize(sColliding.getPos() - s.getPos());
-						float overlap = (s.getRadius() + sColliding.getRadius()) - glm::distance(s.getPos(), sColliding.getPos());
-						glm::vec3 sTranslate = -direction * (overlap * glm::length(s.getVel() / (s.getVel() + sColliding.getVel())));
-						glm::vec3 sCollidingTranslate = direction * (overlap *  glm::length(sColliding.getVel() / (s.getVel() + sColliding.getVel())));
-						s.translate(sTranslate);
-						sColliding.translate(sCollidingTranslate);
-						// r is the vector of the centre of mass and the point of collision
-						/*glm::vec3 r = (s.getPos()-sTranslate) - s.getPos();
-						// Calculate relative velocity
-						glm::vec3 vr = sColliding.getVel() - s.getVel();
-						// Calculate the normal impulse
-						float jn = (-(1.0f + e) * glm::dot(vr, r)) / ((1 / s.getMass()) + (1 / sColliding.getMass()));
-						// Calculate new velocities
-						s.setVel(s.getVel() + (jn / s.getMass()));
-						sColliding.setVel(sColliding.getVel() + (-jn / sColliding.getMass()));*/
+						// Check if the sphere s is colliding with the sColliding sphere
+						if (s.getRadius() + sColliding.getRadius() > glm::distance(s.getPos(), sColliding.getPos()))
+						{
+							// Solve the overlapping using the velocities of the spheres
+							glm::vec3 n = glm::normalize(sColliding.getPos() - s.getPos());
+							float overlap = (s.getRadius() + sColliding.getRadius()) - glm::distance(s.getPos(), sColliding.getPos());
+							float vSum = glm::length(s.getVel() + sColliding.getVel());
+							glm::vec3 sTranslate = -n * (overlap * (glm::length(s.getVel()) / vSum));
+							glm::vec3 sCollidingTranslate = n * (overlap *  (glm::length(sColliding.getVel()) / vSum));
+							s.translate(sTranslate);
+							sColliding.translate(sCollidingTranslate);
+							// Calculate relative velocity
+							glm::vec3 vr = sColliding.getVel() - s.getVel();
+							// Calculate the normal impulse
+							float jn = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / s.getMass()) + (1 / sColliding.getMass()));
+							// Calculate new velocities
+							s.setVel(s.getVel() - (jn*n / s.getMass()));
+							sColliding.setVel(sColliding.getVel() + (jn*n / sColliding.getMass()));
+						}
 					}
 				}
 

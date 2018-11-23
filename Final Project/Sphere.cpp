@@ -3,8 +3,6 @@
 // Default constructor for the sphere
 Sphere::Sphere()
 {
-	// The initial scale has a radius of 1.0f
-	setMesh(Mesh::Mesh("resources/models/sphere.obj"));
 	// Set the radius to the default which is 1.0f
 	setRadius(1.0f);
 }
