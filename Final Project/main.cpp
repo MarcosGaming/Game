@@ -66,8 +66,9 @@ int main()
 	table.setShader(lambert);
 
 	// Create grid
-	glm::vec3 grid[30][30];
+	std::vector<Sphere*> grid[6][6];
 	float cellsDimension = 5.0f;
+	int gridDimension = 6;
 	
 
 	// Array of spheres
@@ -129,83 +130,130 @@ int main()
 		*/
 		while (accumulator >= deltaTime)
 		{
-			// integration (translation)
+			// Move all spheres and update cells
 			for (Sphere& s : spheres)
 			{
+				// Integration (translation)
 				s.setAcc(s.applyForces(s.getPos(), s.getVel(), t, deltaTime));
 				s.setVel(s.getVel() + deltaTime * s.getAcc());
 				s.translate(s.getVel() * deltaTime);
 
-				// Collision with table
-				bool tableCollision = false;
-				glm::vec3 translation = glm::vec3(0.0f);
-				glm::vec3 normal = glm::vec3(0.0f);
-				glm::vec3 collisionPoint = s.getPos();
-				for (int i = 0; i < 3; i++)
+				// Get the possible cells in which the sphere s is(max is four cells)
+				int i[2];
+				int j[2];
+				// Possible x cells
+				int i1 = std::floor((s.getPos().x + s.getRadius()) / cellsDimension);
+				int i2 = std::floor((s.getPos().x - s.getRadius()) / cellsDimension);
+				i[0] = i1;
+				i[1] = i2;
+				// Possible z cells
+				int j1 = std::floor((s.getPos().z + s.getRadius()) / cellsDimension);
+				int j2 = std::floor((s.getPos().z - s.getRadius()) / cellsDimension);
+				j[0] = j1;
+				j[1] = j2;
+
+				// Update the cells
+				grid[i[0]][j[0]].push_back(&s);
+				if (j[1] != j[0])
 				{
-					if (i != 1)
+					grid[i[0]][j[1]].push_back(&s);
+				}
+				if (i[1] != i[0])
+				{
+					grid[i[1]][j[0]].push_back(&s);
+					if (j[1] != j[0])
 					{
-						if (s.getPos()[i] + s.getRadius() >= table.getPos()[i] + tableSize)
-						{
-							translation[i] = -((s.getPos()[i] + s.getRadius()) - (table.getPos()[i] + tableSize));
-							collisionPoint[i] = table.getPos()[i] + tableSize;
-							normal[i] = -1.0f;
-							tableCollision = true;
-							break;
-						}
-						else if (s.getPos()[i] - s.getRadius() <= table.getPos()[i]-tableSize)
-						{
-							translation[i] = glm::abs((table.getPos()[i] - tableSize) - (s.getPos()[i] - s.getRadius()));
-							collisionPoint[i] = table.getPos()[i] - tableSize;
-							normal[i] = 1.0f;
-							tableCollision = true;
-							break;
-						}
+						grid[i[1]][j[1]].push_back(&s);
 					}
 				}
-				if (tableCollision)
-				{
-					// Solve overlaping
-					s.translate(translation);
-					// r is the vector of the centre of mass and the point of collision
-					glm::vec3 r = collisionPoint - s.getPos();
-					// n is the normal of the plane of collision, in this case the normal of the plane
-					glm::vec3 n = normal;
-					// vr is the relative velocity
-					glm::vec3 vr = s.getVel() + glm::cross(s.getAngVel(), r);
-					// Calculate the normal impulse
-					float jn = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / s.getMass()) + glm::dot(n, (glm::cross(s.getInvInertia()* glm::cross(r, n), r))));
-					// Calculate new velocities
-					s.setVel(s.getVel() + (jn / s.getMass())*n);
-				}
+			}
 
-				//Sphere with sphere collisions
-				for (Sphere& sColliding : spheres)
+			//Calculate collisions for each cell in the grid
+			for (int i = 0; i < gridDimension; i++)
+			{
+				for (int j = 0; i < gridDimension; i++)
 				{
-					if (&s != &sColliding)
+					for (Sphere* s : grid[i][j])
 					{
-						// Check if the sphere s is colliding with the sColliding sphere
-						if (s.getRadius() + sColliding.getRadius() > glm::distance(s.getPos(), sColliding.getPos()))
+						// Collision with table only if i is 0/max or j is 0/max
+						if (i == 0 || i == gridDimension - 1 || j == 0 || j == gridDimension - 1)
 						{
-							// Solve the overlapping using the velocities of the spheres
-							glm::vec3 n = glm::normalize(sColliding.getPos() - s.getPos());
-							float overlap = (s.getRadius() + sColliding.getRadius()) - glm::distance(s.getPos(), sColliding.getPos());
-							float vSum = glm::length(s.getVel() + sColliding.getVel());
-							glm::vec3 sTranslate = -n * (overlap * (glm::length(s.getVel()) / vSum));
-							glm::vec3 sCollidingTranslate = n * (overlap *  (glm::length(sColliding.getVel()) / vSum));
-							s.translate(sTranslate);
-							sColliding.translate(sCollidingTranslate);
-							// Calculate relative velocity
-							glm::vec3 vr = sColliding.getVel() - s.getVel();
-							// Calculate the normal impulse
-							float jn = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / s.getMass()) + (1 / sColliding.getMass()));
-							// Calculate new velocities
-							s.setVel(s.getVel() - (jn*n / s.getMass()));
-							sColliding.setVel(sColliding.getVel() + (jn*n / sColliding.getMass()));
+							bool tableCollision = false;
+							glm::vec3 translation = glm::vec3(0.0f);
+							glm::vec3 normal = glm::vec3(0.0f);
+							glm::vec3 collisionPoint = s->getPos();
+							for (int i = 0; i < 3; i++)
+							{
+								if (i != 1)
+								{
+									if (s->getPos()[i] + s->getRadius() >= table.getPos()[i] + tableSize)
+									{
+										translation[i] = -((s->getPos()[i] + s->getRadius()) - (table.getPos()[i] + tableSize));
+										collisionPoint[i] = table.getPos()[i] + tableSize;
+										normal[i] = -1.0f;
+										tableCollision = true;
+										break;
+									}
+									else if (s->getPos()[i] - s->getRadius() <= table.getPos()[i] - tableSize)
+									{
+										translation[i] = glm::abs((table.getPos()[i] - tableSize) - (s->getPos()[i] - s->getRadius()));
+										collisionPoint[i] = table.getPos()[i] - tableSize;
+										normal[i] = 1.0f;
+										tableCollision = true;
+										break;
+									}
+								}
+							}
+							if (tableCollision)
+							{
+								// Solve overlaping
+								s->translate(translation);
+								// r is the vector of the centre of mass and the point of collision
+								glm::vec3 r = collisionPoint - s->getPos();
+								// n is the normal of the plane of collision, in this case the normal of the plane
+								glm::vec3 n = normal;
+								// vr is the relative velocity
+								glm::vec3 vr = s->getVel() + glm::cross(s->getAngVel(), r);
+								// Calculate the normal impulse
+								float jn = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / s->getMass()) + glm::dot(n, (glm::cross(s->getInvInertia()* glm::cross(r, n), r))));
+								// Calculate new velocities
+								s->setVel(s->getVel() + (jn / s->getMass())*n);
+							}
+						}
+
+						//Sphere with sphere collisions if there are more than one
+						if (grid[i][j].size() > 1)
+						{
+							for (Sphere* sColliding : grid[i][j])
+							{
+								if (&s != &sColliding)
+								{
+									// Check if the sphere s is colliding with the sColliding sphere
+									if (s->getRadius() + sColliding->getRadius() > glm::distance(s->getPos(), sColliding->getPos()))
+									{
+										// Solve the overlapping using the velocities of the spheres
+										glm::vec3 n = glm::normalize(sColliding->getPos() - s->getPos());
+										float overlap = (s->getRadius() + sColliding->getRadius()) - glm::distance(s->getPos(), sColliding->getPos());
+										float vSum = glm::length(s->getVel() + sColliding->getVel());
+										glm::vec3 sTranslate = -n * (overlap * (glm::length(s->getVel()) / vSum));
+										glm::vec3 sCollidingTranslate = n * (overlap *  (glm::length(sColliding->getVel()) / vSum));
+										s->translate(sTranslate);
+										sColliding->translate(sCollidingTranslate);
+										// Calculate relative velocity
+										glm::vec3 vr = sColliding->getVel() - s->getVel();
+										// Calculate the normal impulse
+										float jn = (-(1.0f + e) * glm::dot(vr, n)) / ((1 / s->getMass()) + (1 / sColliding->getMass()));
+										// Calculate new velocities
+										s->setVel(s->getVel() - (jn*n / s->getMass()));
+										sColliding->setVel(sColliding->getVel() + (jn*n / sColliding->getMass()));
+									}
+								}
+							}
 						}
 					}
+					// Clean the cell
+					grid[i][j].clear();
 				}
-
 			}
 
 			// integration ( rotation )
