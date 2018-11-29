@@ -61,6 +61,8 @@ int main()
 	Mesh table = Mesh::Mesh(Mesh::QUAD);
 	// Table size is 30x30
 	float tableSize = 30.0f;
+	float cornerX = -(table.getPos().x - (tableSize / 2.0f));
+	float cornerZ = -(table.getPos().z - (tableSize / 2.0f));
 	table.scale(glm::vec3(tableSize, 0.0f, tableSize));
 	Shader lambert = Shader("resources/shaders/physics.vert", "resources/shaders/physics.frag");
 	table.setShader(lambert);
@@ -142,16 +144,26 @@ int main()
 				int i[2];
 				int j[2];
 				// Possible x cells
-				int i1 = std::floor((s.getPos().x + s.getRadius()) / cellsDimension);
-				int i2 = std::floor((s.getPos().x - s.getRadius()) / cellsDimension);
+				int i1;
+				int i2;
+				if (s.getPos().x < table.getPos().x - cornerX)
+				{
+					i1 = 0;
+				}
+				else if(s.getPos().x > table.getPos().x + cornerX)
+				int i1 = std::floor((s.getPos().x + s.getRadius() + cornerX) / cellsDimension);
+				int i2 = std::floor((s.getPos().x - s.getRadius() + cornerX) / cellsDimension);
 				i[0] = i1;
 				i[1] = i2;
 				// Possible z cells
-				int j1 = std::floor((s.getPos().z + s.getRadius()) / cellsDimension);
-				int j2 = std::floor((s.getPos().z - s.getRadius()) / cellsDimension);
+				int j1 = std::floor((s.getPos().z + s.getRadius() + cornerZ) / cellsDimension);
+				int j2 = std::floor((s.getPos().z - s.getRadius() + cornerZ) / cellsDimension);
 				j[0] = j1;
 				j[1] = j2;
 
+				std::cout << s.getPos().z;
+				std::cout << s.getRadius();
+				std::cout << cornerZ;
 				// Update the cells
 				grid[i[0]][j[0]].push_back(&s);
 				if (j[1] != j[0])
@@ -222,7 +234,7 @@ int main()
 						}
 
 						//Sphere with sphere collisions if there are more than one
-						if (grid[i][j].size() > 1)
+						/*if (grid[i][j].size() > 1)
 						{
 							for (Sphere* sColliding : grid[i][j])
 							{
@@ -249,7 +261,7 @@ int main()
 									}
 								}
 							}
-						}
+						}*/
 					}
 					// Clean the cell
 					grid[i][j].clear();
