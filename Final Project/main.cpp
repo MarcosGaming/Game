@@ -60,34 +60,34 @@ int main()
 	// Create table
 	Mesh table = Mesh::Mesh(Mesh::QUAD);
 	// Table size is 30x30
-	float tableSize = 30.0f;
-	float cornerX = -(table.getPos().x - (tableSize / 2.0f));
-	float cornerZ = -(table.getPos().z - (tableSize / 2.0f));
+	float tableSize = 1000.0f;
+	float cornerX = table.getPos().x - (tableSize / 2.0f);
+	float cornerZ = table.getPos().z - (tableSize / 2.0f);
 	table.scale(glm::vec3(tableSize, 0.0f, tableSize));
 	Shader lambert = Shader("resources/shaders/physics.vert", "resources/shaders/physics.frag");
 	table.setShader(lambert);
 
 	// Create grid
-	std::vector<Sphere*> grid[6][6];
-	float cellsDimension = 5.0f;
-	int gridDimension = 6;
+	std::vector<Sphere*> grid[100][100];
+	float cellsDimension = 10.0f;
+	int gridDimension = 100;
 	
 
 	// Array of spheres
-	Sphere spheres[30];
-	int spheresNumber = 30;
+	const int spheresNumber = 20000;
+	Sphere* spheres[spheresNumber];
 	Shader sShader = Shader("resources/shaders/physics.vert ", "resources/shaders/physics.frag ");
 	Mesh mesh =  Mesh::Mesh("resources/models/sphere.obj");
 	for (int i = 0; i < spheresNumber; i++)
 	{
-		Sphere s = Sphere::Sphere();
-		s.setMesh(mesh);
-		s.getMesh().setShader(sShader);
-		s.setMass(1.0f);
+		Sphere* s = new Sphere();
+		s->setMesh(mesh);
+		s->getMesh().setShader(sShader);
+		s->setMass(1.0f);
 		// Set random initial linear velocity
-		s.setVel(glm::vec3(randomFloat(-20, 20), 0.0f, randomFloat(-20, 20)));
+		s->setVel(glm::vec3(randomFloat(-20, 20), 0.0f, randomFloat(-20, 20)));
 		// Set random initial position
-		s.setPos(glm::vec3(randomFloat(-tableSize, tableSize), s.getRadius(), randomFloat(-tableSize, tableSize)));
+		s->setPos(glm::vec3(randomFloat(-tableSize/2.0f, tableSize/2.0f), s->getRadius(), randomFloat(-tableSize/2.0f, tableSize/2.0f)));
 		// Check that the sphere does not overlap with any of the other spheres
 		/*for (Sphere sp : spheres)
 		{
@@ -104,6 +104,14 @@ int main()
 			}
 		}*/
 		// Add sphere to array
+		//spheres[i] = &(Sphere::Sphere());
+		//spheres[i]->setMesh(mesh);
+		//spheres[i]->getMesh().setShader(sShader);
+		//spheres[i]->setMass(1.0f);
+		//// Set random initial linear velocity
+		//spheres[i]->setVel(glm::vec3(randomFloat(-20, 20), 0.0f, randomFloat(-20, 20)));
+		//// Set random initial position
+		//spheres[i]->setPos(glm::vec3(randomFloat(-tableSize / 2.0f, tableSize / 2.0f), s.getRadius(), randomFloat(-tableSize / 2.0f, tableSize / 2.0f)));
 		spheres[i] = s;
 	}
 
@@ -133,49 +141,49 @@ int main()
 		while (accumulator >= deltaTime)
 		{
 			// Move all spheres and update cells
-			for (Sphere& s : spheres)
+			for (Sphere* s : spheres)
 			{
 				// Integration (translation)
-				s.setAcc(s.applyForces(s.getPos(), s.getVel(), t, deltaTime));
-				s.setVel(s.getVel() + deltaTime * s.getAcc());
-				s.translate(s.getVel() * deltaTime);
+				s->setAcc(s->applyForces(s->getPos(), s->getVel(), t, deltaTime));
+				s->setVel(s->getVel() + deltaTime * s->getAcc());
+				s->translate(s->getVel() * deltaTime);
 
 				// Get the possible cells in which the sphere s is(max is four cells)
 				int i[2];
 				int j[2];
-				// Possible x cells
-				int i1;
-				int i2;
-				if (s.getPos().x < table.getPos().x - cornerX)
-				{
-					i1 = 0;
-				}
-				else if(s.getPos().x > table.getPos().x + cornerX)
-				int i1 = std::floor((s.getPos().x + s.getRadius() + cornerX) / cellsDimension);
-				int i2 = std::floor((s.getPos().x - s.getRadius() + cornerX) / cellsDimension);
+				// Possible x cells	
+				int i1 = std::floor((s->getPos().x + s->getRadius() - cornerX) / cellsDimension);
+				int i2 = std::floor((s->getPos().x - s->getRadius() - cornerX) / cellsDimension);
+				// Check that the cells are in the boundaries
+				if (i1 < 0) { i1 = 0; }
+				else if (i1 > gridDimension - 1) { i1 = gridDimension - 1; }
+				if (i2 < 0) { i2 = 0; }
+				else if (i2 > gridDimension - 1) { i2 = gridDimension - 1; }
 				i[0] = i1;
 				i[1] = i2;
 				// Possible z cells
-				int j1 = std::floor((s.getPos().z + s.getRadius() + cornerZ) / cellsDimension);
-				int j2 = std::floor((s.getPos().z - s.getRadius() + cornerZ) / cellsDimension);
+				int j1 = std::floor((s->getPos().z + s->getRadius() - cornerZ) / cellsDimension);
+				int j2 = std::floor((s->getPos().z - s->getRadius() - cornerZ) / cellsDimension);
+				// Check that the cells are in the boundaries
+				if (j1 < 0) { j1 = 0; }
+				else if (j1 > gridDimension - 1) { j1 = gridDimension - 1; }
+				if (j2 < 0) { j2 = 0; }
+				else if (j2 > gridDimension - 1) { j2 = gridDimension - 1; }
 				j[0] = j1;
 				j[1] = j2;
 
-				std::cout << s.getPos().z;
-				std::cout << s.getRadius();
-				std::cout << cornerZ;
 				// Update the cells
-				grid[i[0]][j[0]].push_back(&s);
+				grid[i[0]][j[0]].push_back(s);
 				if (j[1] != j[0])
 				{
-					grid[i[0]][j[1]].push_back(&s);
+					grid[i[0]][j[1]].push_back(s);
 				}
 				if (i[1] != i[0])
 				{
-					grid[i[1]][j[0]].push_back(&s);
+					grid[i[1]][j[0]].push_back(s);
 					if (j[1] != j[0])
 					{
-						grid[i[1]][j[1]].push_back(&s);
+						grid[i[1]][j[1]].push_back(s);
 					}
 				}
 			}
@@ -183,7 +191,7 @@ int main()
 			//Calculate collisions for each cell in the grid
 			for (int i = 0; i < gridDimension; i++)
 			{
-				for (int j = 0; i < gridDimension; i++)
+				for (int j = 0; j < gridDimension; j++)
 				{
 					for (Sphere* s : grid[i][j])
 					{
@@ -233,12 +241,12 @@ int main()
 							}
 						}
 
-						//Sphere with sphere collisions if there are more than one
-						/*if (grid[i][j].size() > 1)
+						//Sphere with sphere collisions if there are more than one in the cell
+						if (grid[i][j].size() > 1)
 						{
 							for (Sphere* sColliding : grid[i][j])
 							{
-								if (&s != &sColliding)
+								if (s != sColliding)
 								{
 									// Check if the sphere s is colliding with the sColliding sphere
 									if (s->getRadius() + sColliding->getRadius() > glm::distance(s->getPos(), sColliding->getPos()))
@@ -261,7 +269,7 @@ int main()
 									}
 								}
 							}
-						}*/
+						}
 					}
 					// Clean the cell
 					grid[i][j].clear();
@@ -380,9 +388,9 @@ int main()
 		// draw groud plane
 		app.draw(table);
 		//draw the spheres
-		for (Sphere s : spheres)
+		for (Sphere* s : spheres)
 		{
-			app.draw(s.getMesh());
+			app.draw(s->getMesh());
 		}
 
 		app.display();

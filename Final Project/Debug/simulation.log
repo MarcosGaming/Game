@@ -1,6 +1,6 @@
 ﻿  main.cpp
-c:\users\marcos\desktop\physics_practicals\final project\main.cpp(147): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-c:\users\marcos\desktop\physics_practicals\final project\main.cpp(148): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-c:\users\marcos\desktop\physics_practicals\final project\main.cpp(152): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-c:\users\marcos\desktop\physics_practicals\final project\main.cpp(153): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-  simulation.vcxproj -> C:\Users\Marcos\Desktop\Physics_Practicals\Final Project\Debug\simulation.exe
+c:\users\40284094\desktop\physics_practicals\final project\main.cpp(155): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\40284094\desktop\physics_practicals\final project\main.cpp(156): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\40284094\desktop\physics_practicals\final project\main.cpp(165): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\40284094\desktop\physics_practicals\final project\main.cpp(166): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+  simulation.vcxproj -> C:\Users\40284094\Desktop\Physics_Practicals\Final Project\Debug\simulation.exe
