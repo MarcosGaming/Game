@@ -128,7 +128,7 @@ int main()
 	rb.addForce(fgravity);
 
 	// impulse elements
-	float e = 0.6f;
+	float e = 0.6;
 	bool collision = false;
 	int vertexCount = 0;
 	glm::vec3 verticesInCollision[4];
